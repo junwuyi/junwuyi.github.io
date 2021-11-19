@@ -1,0 +1,3630 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://junwuyi.github.io</id>
+    <title>君无意博客</title>
+    <updated>2021-11-19T07:39:43.376Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://junwuyi.github.io"/>
+    <link rel="self" href="https://junwuyi.github.io/atom.xml"/>
+    <subtitle>温故而知新</subtitle>
+    <logo>https://junwuyi.github.io/images/avatar.png</logo>
+    <icon>https://junwuyi.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2021, 君无意博客</rights>
+    <entry>
+        <title type="html"><![CDATA[性能优化之MySQL优化]]></title>
+        <id>https://junwuyi.github.io/LqgaEzXRC/</id>
+        <link href="https://junwuyi.github.io/LqgaEzXRC/">
+        </link>
+        <updated>2021-11-15T13:43:36.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#%E7%AC%AC1%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%AE%80%E4%BB%8B">第1章 数据库优化简介</a>
+<ul>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%9A%84%E7%9B%AE%E7%9A%84">数据库优化的目的</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F">数据库优化的方式</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC2%E7%AB%A0-sql%E8%AF%AD%E5%8F%A5%E4%BC%98%E5%8C%96">第2章 SQL语句优化</a>
+<ul>
+<li><a href="#select%E8%AF%AD%E5%8F%A5-%E8%AF%AD%E6%B3%95%E9%A1%BA%E5%BA%8F">SELECT语句 - 语法顺序：</a></li>
+<li><a href="#select%E8%AF%AD%E5%8F%A5-%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F">SELECT语句 - 执行顺序：</a></li>
+<li><a href="#2-1-%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87">2-1 数据准备</a></li>
+<li><a href="#2-2-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E7%9A%84%E5%BC%80%E5%90%AF%E6%96%B9%E5%BC%8F%E5%92%8C%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F">2-2 MySQL慢查日志的开启方式和存储格式</a></li>
+<li><a href="#2-3-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmysqldumpslow">2-3 MySQL慢查日志分析工具之mysqldumpslow</a>
+<ul>
+<li><a href="#windows%E4%B8%8B%E4%BD%BF%E7%94%A8">Windows下使用</a></li>
+<li><a href="#linux-%E4%B8%8B%E4%BD%BF%E7%94%A8">Linux 下使用</a></li>
+</ul>
+</li>
+<li><a href="#2-4-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bpt-query-digest">2-4 MySQL慢查日志分析工具之pt-query-digest</a>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85pt-query-digest">安装pt-query-digest</a></li>
+<li><a href="#%E6%88%96%E8%80%85%E5%AE%89%E8%A3%85-percona-toolkit-%E5%A5%97%E4%BB%B6">或者安装 percona-toolkit 套件</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8-pt-query-digest">使用 pt-query-digest</a>
+<ul>
+<li><a href="#pt-query-digest%E8%AF%AD%E6%B3%95%E5%8F%8A%E9%87%8D%E8%A6%81%E9%80%89%E9%A1%B9">pt-query-digest语法及重要选项</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%86%E6%9E%90pt-query-digest%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C">分析pt-query-digest输出结果</a></li>
+</ul>
+</li>
+<li><a href="#2-5-%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%8F%91%E7%8E%B0%E6%9C%89%E9%97%AE%E9%A2%98%E7%9A%84sql">2-5 如何通过慢查日志发现有问题的SQL</a></li>
+<li><a href="#2-6-%E9%80%9A%E8%BF%87explain%E6%9F%A5%E8%AF%A2%E5%92%8C%E5%88%86%E6%9E%90sql%E7%9A%84%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92">2-6 通过explain查询和分析SQL的执行计划</a></li>
+<li><a href="#2-7-count%E5%92%8Cmax%E7%9A%84%E4%BC%98%E5%8C%96">2-7 Count()和Max()的优化</a>
+<ul>
+<li><a href="#1%E5%AF%B9max%E6%9F%A5%E8%AF%A2%E5%8F%AF%E4%BB%A5%E4%B8%BA%E8%A1%A8%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95">1.对max()查询，可以为表创建索引</a></li>
+<li><a href="#2count%E5%AF%B9%E5%A4%9A%E4%B8%AA%E5%85%B3%E9%94%AE%E5%AD%97%E8%BF%9B%E8%A1%8C%E6%9F%A5%E8%AF%A2">2.count()对多个关键字进行查询</a></li>
+</ul>
+</li>
+<li><a href="#2-8-%E5%AD%90%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E5%8C%96">2-8 子查询的优化</a></li>
+<li><a href="#2-9-group-by%E7%9A%84%E4%BC%98%E5%8C%96">2-9 group by的优化</a></li>
+<li><a href="#2-10-limit%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E5%8C%96">2-10 Limit查询的优化</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC3%E7%AB%A0-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96">第3章 索引优化</a>
+<ul>
+<li><a href="#3-1-%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E5%88%97%E5%BB%BA%E7%AB%8B%E7%B4%A2%E5%BC%95">3-1 如何选择合适的列建立索引</a>
+<ul>
+<li><a href="#%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E7%B4%A2%E5%BC%95%E5%88%97">选择合适的索引列</a></li>
+<li><a href="#%E7%A6%BB%E6%95%A3%E5%BA%A6%E7%9A%84%E5%88%A4%E6%96%AD">离散度的判断</a></li>
+</ul>
+</li>
+<li><a href="#3-2-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96sql%E7%9A%84%E6%96%B9%E6%B3%95">3-2 索引优化SQL的方法</a>
+<ul>
+<li><a href="#%E9%87%8D%E5%A4%8D%E5%8F%8A%E5%86%97%E4%BD%99%E7%B4%A2%E5%BC%95">重复及冗余索引</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%8F%8A%E5%86%97%E4%BD%99%E7%B4%A2%E5%BC%95">查找重复及冗余索引</a></li>
+</ul>
+</li>
+<li><a href="#3-3-%E7%B4%A2%E5%BC%95%E7%BB%B4%E6%8A%A4%E7%9A%84%E6%96%B9%E6%B3%95">3-3 索引维护的方法</a></li>
+<li><a href="#3-4-%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E6%83%85%E5%86%B5">3-4 索引失效的情况</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC4%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E4%BC%98%E5%8C%96">第4章 数据库结构优化</a>
+<ul>
+<li><a href="#4-1-%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">4-1 选择合适的数据类型</a>
+<ul>
+<li><a href="#%E4%BE%8B%E5%AD%901-%E7%94%A8int%E5%AD%98%E5%82%A8%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4">例子1、用Int存储日期时间</a></li>
+<li><a href="#%E4%BE%8B%E5%AD%902-%E5%AD%98%E5%82%A8ip%E5%9C%B0%E5%9D%80bigint">例子2、存储IP地址——bigInt</a></li>
+</ul>
+</li>
+<li><a href="#4-2-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E8%8C%83%E5%BC%8F%E5%8C%96%E4%BC%98%E5%8C%96">4-2 数据库表的范式化优化</a></li>
+<li><a href="#4-3-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%8F%8D%E8%8C%83%E5%BC%8F%E5%8C%96%E4%BC%98%E5%8C%96">4-3 数据库表的反范式化优化</a></li>
+<li><a href="#4-4-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86">4-4 数据库表的垂直拆分</a></li>
+<li><a href="#4-5-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86">4-5 数据库表的水平拆分</a>
+<ul>
+<li><a href="#%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86%E4%B8%8E%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86%E5%8C%BA%E5%88%AB">垂直拆分与水平拆分区别:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC5%E7%AB%A0-%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96">第5章 系统配置优化</a>
+<ul>
+<li><a href="#5-1-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96">5-1 数据库系统配置优化</a>
+<ul>
+<li><a href="#1-%E7%BD%91%E7%BB%9C%E6%96%B9%E9%9D%A2">1. 网络方面</a></li>
+<li><a href="#2-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E6%95%B0%E7%9A%84%E9%99%90%E5%88%B6">2. 打开文件数的限制</a></li>
+</ul>
+</li>
+<li><a href="#5-2-mysql%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BC%98%E5%8C%96">5-2 MySQL配置文件优化</a></li>
+<li><a href="#5-3-%E7%AC%AC%E4%B8%89%E6%96%B9%E9%85%8D%E7%BD%AE%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8">5-3 第三方配置工具使用</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC6%E7%AB%A0-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96">第6章 服务器硬件优化</a>
+<ul>
+<li><a href="#6-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96">6-1 服务器硬件优化</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="第1章-数据库优化简介">第1章 数据库优化简介</h1>
+<h2 id="数据库优化的目的">数据库优化的目的</h2>
+<p>避免出现页面访问错误</p>
+<ul>
+<li>由于数据库联接timeout产生页面5xx错误</li>
+<li>由于慢查询造成页面无法加载</li>
+<li>由于阻塞造成数据无法提交</li>
+</ul>
+<p>增加数据库的稳定性</p>
+<ul>
+<li>很多数据库问题都是由于低效的查询引起的</li>
+</ul>
+<p>优化用户体验</p>
+<ul>
+<li>流畅页面的访问速度</li>
+<li>良好的网站功能体验</li>
+</ul>
+<h2 id="数据库优化的方式">数据库优化的方式</h2>
+<p>1 SQL及索引（提升性能最大，效率最高）<br>
+2 数据库表结构（根据范式设计表结构）<br>
+3 系统配置（linux对mysql打开文件数的限制等）<br>
+4 硬件（提高文件io的速度，但是成本最高）<br>
+io的优化 并不能减少阻塞  ，但sql索引没有优化好，则会产生大量的慢查询或阻塞，这是由于mysql的内部锁机制造成，所以硬件再好效果也不大<br>
+mysql对内核是有限制的<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/9f311f42f9f3a8be565112dd494dc0a4.png" alt="image.png" loading="lazy"></p>
+<h1 id="第2章-sql语句优化">第2章 SQL语句优化</h1>
+<h2 id="select语句-语法顺序">SELECT语句 - 语法顺序：</h2>
+<pre><code class="language-sql">1. SELECT 
+2. DISTINCT &lt;select_list&gt;
+3. FROM &lt;left_table&gt;
+4. &lt;join_type&gt; JOIN &lt;right_table&gt;
+5. ON &lt;join_condition&gt;
+6. WHERE &lt;where_condition&gt;
+7. GROUP BY &lt;group_by_list&gt;
+8. HAVING &lt;having_condition&gt;
+9. ORDER BY &lt;order_by_condition&gt;
+10.LIMIT &lt;limit_number&gt;
+</code></pre>
+<h2 id="select语句-执行顺序">SELECT语句 - 执行顺序：</h2>
+<pre><code class="language-sql">FROM
+&lt;表名&gt; # 选取表，将多个表数据通过笛卡尔积变成一个表。
+ON
+&lt;筛选条件&gt; # 对笛卡尔积的虚表进行筛选
+JOIN &lt;join, left join, right join...&gt; 
+&lt;join表&gt; # 指定join，用于添加数据到on之后的虚表中，例如left join会将左表的剩余数据添加到虚表中
+WHERE
+&lt;where条件&gt; # 对上述虚表进行筛选
+GROUP BY
+&lt;分组条件&gt; # 分组
+&lt;SUM()等聚合函数&gt; # 用于having子句进行判断，在书写上这类聚合函数是写在having判断里面的
+HAVING
+&lt;分组筛选&gt; # 对分组后的结果进行聚合筛选
+SELECT
+&lt;返回数据列表&gt; # 返回的单列必须在group by子句中，聚合函数除外
+DISTINCT
+# 数据除重
+ORDER BY
+&lt;排序条件&gt; # 排序
+LIMIT
+&lt;行数限制&gt;
+</code></pre>
+<h2 id="2-1-数据准备">2-1 数据准备</h2>
+<p>演示数据库说明：<br>
+使用MySQL提供的sakila数据库，可以通过以下URL获取这个演示数据库<br>
+<a href="http://dev.mysql.com/doc/index-other.html">http://dev.mysql.com/doc/index-other.html</a><br>
+sakila数据库的表结构信息可以通过以下网站查看<br>
+<a href="http://dev.mysql.com/doc/sakila/en/sakila-installation.html">http://dev.mysql.com/doc/sakila/en/sakila-installation.html</a><br>
+数据库基于MySQL5.5版本,不同MySQL版本的优化器有一定的差别。<br>
+导入数据:<br>
+1.下载sakila数据库<br>
+<a href="http://dev.mysql.com/doc/index-other.html.">http://dev.mysql.com/doc/index-other.html</a><br>
+解压:<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/0b6f17cbe8b23cbc5e8406c2f57603d3.png" alt="image.png" loading="lazy"><br>
+2.导入<br>
+CMD 命令窗口连接MySQL  $&gt; mysql -u root -p<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/bebaaeff0075ed788b193decd0f176ff.png" alt="image.png" loading="lazy"><br>
+创建数据库结构<br>
+mysql&gt; source /home/tom/mysql/sakila-schema.sql<br>
+将数据写入到数据库<br>
+mysql&gt; source /home/tom/mysql/sakila-db/sakila-data.sql<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/337398f4ad556d1c80a6fcfe544692e3.png" alt="image.png" loading="lazy"><br>
+Linux下<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/e8b3cd7f530bf0be348499a5ed29aa09.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/d2d99627f0e98d43e72c4534f8994b52.png" alt="image.png" loading="lazy"><br>
+mysql&gt; select @@version;<br>
++-----------+<br>
+| @@version |<br>
++-----------+<br>
+| 5.7.23    |<br>
++-----------+</p>
+<pre><code class="language-sql">mysql&gt; USE sakila;
+Database changed
+
+mysql&gt; SHOW FULL TABLES;
++----------------------------+------------+
+| Tables_in_sakila           | Table_type |
++----------------------------+------------+
+| actor                      | BASE TABLE |
+| actor_info                 | VIEW       |
+| address                    | BASE TABLE |
+| category                   | BASE TABLE |
+| city                       | BASE TABLE |
+| country                    | BASE TABLE |
+| customer                   | BASE TABLE |
+| customer_list              | VIEW       |
+| film                       | BASE TABLE |
+| film_actor                 | BASE TABLE |
+| film_category              | BASE TABLE |
+| film_list                  | VIEW       |
+| film_text                  | BASE TABLE |
+| inventory                  | BASE TABLE |
+| language                   | BASE TABLE |
+| nicer_but_slower_film_list | VIEW       |
+| payment                    | BASE TABLE |
+| rental                     | BASE TABLE |
+| sales_by_film_category     | VIEW       |
+| sales_by_store             | VIEW       |
+| staff                      | BASE TABLE |
+| staff_list                 | VIEW       |
+| store                      | BASE TABLE |
++----------------------------+------------+
+23 rows in set (0.01 sec)
+
+mysql&gt; SELECT COUNT(*) FROM film;
++----------+
+| COUNT(*) |
++----------+
+|     1000 |
++----------+
+1 row in set (0.00 sec)
+
+mysql&gt; SELECT COUNT(*) FROM film_text;
++----------+
+| COUNT(*) |
++----------+
+|     1000 |
++----------+
+1 row in set (0.00 sec)
+</code></pre>
+<h2 id="2-2-mysql慢查日志的开启方式和存储格式">2-2 MySQL慢查日志的开启方式和存储格式</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/42ee2842bdbe1bfbcce73b57acae2062.png" alt="image.png" loading="lazy"><br>
+SQL及索引优化<br>
+相关参数说明:</p>
+<ul>
+<li>show_query_log_file：慢查日志存储位置</li>
+<li>log_queries_not_use_indexes：是否把没有使用索引的查询记录到慢查询日志中</li>
+<li>long_query_time：超过多少秒的查询记录到慢查询日志中</li>
+</ul>
+<p>使用MySQL慢查日志对有效率问题的SQL进行监控</p>
+<ul>
+<li>show variables like 'slow_query_log';    //查看是否开启慢查日志</li>
+<li>set global slow_query_log_file = 'xxx' //设置慢查日志的文件地址</li>
+<li>set global log_queries_not_using_indexes=on;    //是否把没有使用sql索引记录到慢查日志中</li>
+<li>set global long_query_time=1;    //设置慢查日志的时间，查寻超过多少秒记录(单位：秒)</li>
+</ul>
+<p>案例:<br>
+show variables like 'slow_query_log';    //查看是否开启慢查日志</p>
+<pre><code class="language-sql">mysql&gt; show variables like 'slow_query_log';
++----------------+-------+
+| Variable_name  | Value |
++----------------+-------+
+| slow_query_log | OFF   | 值是OFF,说明没有开启该功能
++----------------+-------+
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>查看是否将没有建立索引的查询列入慢查询记录:<br>
+show variables like '%log%';<br>
+显示的结果中有一项&quot;log_queries_not_using_indexes&quot;值为off, 说明没有开启 使用下面的命令开启:<br>
+set global log_queries_not_using_indexes=on;    //是否把没有使用sql索引记录到慢查日志中</p>
+<pre><code class="language-sql">mysql&gt; set global log_queries_not_using_indexes=on;
+Query OK, 0 rows affected (0.00 sec)
+</code></pre>
+<p>查看慢查询时间设置:<br>
+show variables like 'long_query_time';</p>
+<pre><code class="language-sql">mysql&gt; show variables like 'long_query_time';
++-----------------+-----------+
+| Variable_name   | Value     |
++-----------------+-----------+
+| long_query_time | 10.000000 |
++-----------------+-----------+
+</code></pre>
+<p>设置慢查询时间设置:<br>
+set global long_query_time=0;<br>
+set global long_query_time=0;    为啥无效呢，再查还是原来的10<br>
+修改之后，先关闭数据库连接，再重新连接，再次查询就可以看到实际上是修改了的。<br>
+开启慢查询日志<br>
+set global slow_query_log=on;</p>
+<pre><code class="language-sql">mysql&gt; set global slow_query_log=on;
+</code></pre>
+<p>查看慢查询日志文件位置<br>
+show variables like 'slow%';</p>
+<pre><code class="language-sql">mysql&gt; show variables like 'slow%';
++---------------------+-------------------------------------------------------+
+| Variable_name       | Value                                                 |
++---------------------+-------------------------------------------------------+
+| slow_launch_time    | 2                                                     |
+| slow_query_log      | ON                                                    |
+| slow_query_log_file | D:\development\MySQL5.7\data\LAPTOP-9GHMNQJ6-slow.log | 存放位置
++---------------------+-------------------------------------------------------+
+
+# Linux下
+mysql&gt; show variables like 'slow%';
++---------------------+-------------------------------------+
+| Variable_name       | Value                               |
++---------------------+-------------------------------------+
+| slow_launch_time    | 2                                   |
+| slow_query_log      | ON                                  |
+| slow_query_log_file | /var/lib/mysql/cjbCentos01-slow.log |
++---------------------+-------------------------------------+
+3 rows in set (0.00 sec)
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/img_convert/91abe6e6b642d16f8b6908763f67382b.png" alt="image.png" loading="lazy"></figure>
+<h2 id="2-3-mysql慢查日志分析工具之mysqldumpslow">2-3 MySQL慢查日志分析工具之mysqldumpslow</h2>
+<blockquote>
+<p><a href="http://www.javacui.com/DB/542.html">Windows下安装使用mysqldumpslow</a><br>
+不建议安装使用,可能会导致某些系统问题</p>
+</blockquote>
+<h3 id="windows下使用">Windows下使用</h3>
+<p>D:\development\Strawberry\perl\bin&gt;perl mysqldumpslow.pl -h</p>
+<pre><code class="language-sql">D:\development\Strawberry\perl\bin&gt;perl mysqldumpslow.pl -h
+Option h requires an argument
+ERROR: bad option
+
+ Usage: mysqldumpslow [ OPTS... ] [ LOGS... ]
+Parse and summarize the MySQL slow query log. Options are
+  --verbose    verbose
+  --debug      debug
+  --help       write this text to standard output
+  -v           verbose
+  -d           debug
+  -s ORDER     what to sort by (al, at, ar, c, l, r, t), 'at' is default（排序方式）
+                 al: average lock time（平均锁定时间）
+                 ar: average rows sent（平均返回记录数）
+                 at: average query time（平均查询时间）
+                  c: count（访问计数）
+                  l: lock time（锁定时间）
+                  r: rows sent（返回记录）
+                  t: query time（查询时间）
+   -r           reverse the sort order (largest last instead of first)
+   -t NUM       just show the top n queries（返回前面n条数据）
+   -a           don't abstract all numbers to N and strings to 'S'
+   -n NUM       abstract numbers with at least n digits within names
+   -g PATTERN   grep: only consider stmts that include this string（正则匹配模式，大小写不敏感）
+   -h HOSTNAME  hostname of db server for *-slow.log filename (can be wildcard),
+                default is '*', i.e. match all
+   -i NAME      name of server instance (if using mysql.server startup script)
+   -l           don't subtract lock time from total time
+</code></pre>
+<h3 id="linux-下使用">Linux 下使用</h3>
+<p>mysqldumpslow -h 查看分析工具的参数<br>
+mysqldumpslow工具的使用：<br>
+1、mysqldumpslow -t  3 慢查询日志文件路径  | more    //表示使用mysqldumpslow工具分析3条慢查询语句<br>
+mysqldumpslow -t  3 /var/lib/mysql/cjbCentos01-slow.log | more</p>
+<pre><code class="language-bash">[root@cjbCentos01 mysql]# mysqldumpslow -t  3 /var/lib/mysql/cjbCentos01-slow.log | more
+
+Reading mysql slow query log from /var/lib/mysql/cjbCentos01-slow.log
+Count: 2  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=2.0 (4), root[root]@localhost
+  show variables like 'S'
+
+Count: 1  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=1.0 (1), root[root]@localhost
+  select @@version_comment limit N
+
+Count: 1  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost
+  mysqldumpslow -h
+</code></pre>
+<p>2、报表内容：<br>
+Count：执行的行数<br>
+Time: 执行的时间<br>
+Lock: 锁定时间<br>
+Rows: 行数<br>
+服务器信息<br>
+SQL内容等</p>
+<h2 id="2-4-mysql慢查日志分析工具之pt-query-digest">2-4 MySQL慢查日志分析工具之pt-query-digest</h2>
+<blockquote>
+<p><a href="https://www.cnblogs.com/luyucheng/p/6265873.html">MySQL慢查询（二） - pt-query-digest详解慢查询日志</a></p>
+</blockquote>
+<h3 id="安装pt-query-digest">安装pt-query-digest</h3>
+<p>下载pt-query-disgest 、 授权 、 将其放到/usr/bin下：</p>
+<pre><code class="language-bash">wget percona.com/get/pt-query-digest
+chmod u+x pt-query-digest
+mv pt-query-digest /usr/bin/
+</code></pre>
+<p>可能需要的安装依赖工具：</p>
+<pre><code class="language-bash">yum install perl-DBI
+yum install perl-DBD-MySQL
+yum install perl-Time-HiRes
+yum install perl-IO-Socket-SSL
+yum install perl-Digest-MD5 #我的需要是这个
+</code></pre>
+<h3 id="或者安装-percona-toolkit-套件">或者安装 percona-toolkit 套件</h3>
+<pre><code class="language-bash">需要安装。最好安装这个套件：
+wget http://www.percona.com/downloads/percona-toolkit/2.2.4/percona-toolkit-2.2.4.tar.gz
+tar -zxvf percona-toolkit-2.2.4.tar.gz
+cd percona-toolkit-2.2.4
+perl Makefile.PL
+make &amp;&amp; make install
+
+如果报错(Can't locate Time/HiRes.pm in @INC (@INC contains....)的话，
+yum -y install perl-Time-HiRes 或者 yum install -y perl-CPAN perl-Time-HiRes
+</code></pre>
+<h3 id="使用-pt-query-digest">使用 pt-query-digest</h3>
+<p>使用帮助: pt-query-digest --help</p>
+<h4 id="pt-query-digest语法及重要选项">pt-query-digest语法及重要选项</h4>
+<pre><code class="language-bash">pt-query-digest [OPTIONS] [FILES] [DSN]
+--create-review-table  当使用--review参数把分析结果输出到表中时，如果没有表就自动创建。
+--create-history-table  当使用--history参数把分析结果输出到表中时，如果没有表就自动创建。
+--filter  对输入的慢查询按指定的字符串进行匹配过滤后再进行分析
+--limit    限制输出结果百分比或数量，默认值是20,即将最慢的20条语句输出，如果是50%则按总响应时间占比从大到小排序，输出到总和达到50%位置截止。
+--host  mysql服务器地址
+--user  mysql用户名
+--password  mysql用户密码
+--history 将分析结果保存到表中，分析结果比较详细，下次再使用--history时，如果存在相同的语句，且查询所在的时间区间和历史表中的不同，则会记录到数据表中，可以通过查询同一CHECKSUM来比较某类型查询的历史变化。
+--review 将分析结果保存到表中，这个分析只是对查询条件进行参数化，一个类型的查询一条记录，比较简单。当下次使用--review时，如果存在相同的语句分析，就不会记录到数据表中。
+--output 分析结果输出类型，值可以是report(标准分析报告)、slowlog(Mysql slow log)、json、json-anon，一般使用report，以便于阅读。
+--since 从什么时间开始分析，值为字符串，可以是指定的某个”yyyy-mm-dd [hh:mm:ss]”格式的时间点，也可以是简单的一个时间值：s(秒)、h(小时)、m(分钟)、d(天)，如12h就表示从12小时前开始统计。
+--until 截止时间，配合—since可以分析一段时间内的慢查询。
+</code></pre>
+<p>案例:<br>
+pt-query-digest /var/lib/mysql/cjbCentos01-slow.log | more<br>
+输出到文件：pt-query-digest show-log &gt; slow_log.report<br>
+输出到数据库表 pt-query-digest show.log -review <br>
+h=127.0.0.1,D=test,p=root.P=3306,u=root,t=query_review <br>
+--create-reviewtable <br>
+--review-history t=hostname_show<br>
+pt-query-digest慢查询日志的输出有三部分</p>
+<h3 id="分析pt-query-digest输出结果">分析pt-query-digest输出结果</h3>
+<p>第一部分：总体统计结果<br>
+Overall：总共有多少条查询<br>
+Time range：查询执行的时间范围<br>
+unique：唯一查询数量，即对查询条件进行参数化以后，总共有多少个不同的查询<br>
+total：总计   min：最小   max：最大  avg：平均<br>
+95%：把所有值从小到大排列，位置位于95%的那个数，这个数一般最具有参考价值<br>
+median：中位数，把所有值从小到大排列，位置位于中间那个数</p>
+<pre><code class="language-bash"># 该工具执行日志分析的用户时间，系统时间，物理内存占用大小，虚拟内存占用大小
+# 340ms user time, 140ms system time, 23.99M rss, 203.11M vsz
+# 工具执行时间
+# Current date: Fri Nov 25 02:37:18 2016
+# 运行分析工具的主机名
+# Hostname: localhost.localdomain
+# 被分析的文件名
+# Files: slow.log
+# 语句总数量，唯一的语句数量，QPS，并发数
+# Overall: 2 total, 2 unique, 0.01 QPS, 0.01x concurrency ________________
+# 日志记录的时间范围
+# Time range: 2016-11-22 06:06:18 to 06:11:40
+# 属性               总计      最小    最大    平均    95%  标准    中等
+# Attribute          total     min     max     avg     95%  stddev  median
+# ============     ======= ======= ======= ======= ======= ======= =======
+# 语句执行时间
+# Exec time             3s   640ms      2s      1s      2s   999ms      1s
+# 锁占用时间
+# Lock time            1ms       0     1ms   723us     1ms     1ms   723us
+# 发送到客户端的行数
+# Rows sent              5       1       4    2.50       4    2.12    2.50
+# select语句扫描行数
+# Rows examine     186.17k       0 186.17k  93.09k 186.17k 131.64k  93.09k
+# 查询的字符数
+# Query size           455      15     440  227.50     440  300.52  227.50
+</code></pre>
+<p>第二部分：查询分组统计结果<br>
+Rank：所有语句的排名，默认按查询时间降序排列，通过--order-by指定<br>
+Query ID：语句的ID，（去掉多余空格和文本字符，计算hash值）<br>
+Response：总的响应时间<br>
+time：该查询在本次分析中总的时间占比<br>
+calls：执行次数，即本次分析总共有多少条这种类型的查询语句<br>
+R/Call：平均每次执行的响应时间<br>
+V/M：响应时间Variance-to-mean的比率<br>
+Item：查询对象</p>
+<pre><code class="language-bash"># Profile
+# Rank Query ID           Response time Calls R/Call V/M   Item
+# ==== ================== ============= ===== ====== ===== ===============
+#    1 0xF9A57DD5A41825CA  2.0529 76.2%     1 2.0529  0.00 SELECT
+#    2 0x4194D8F83F4F9365  0.6401 23.8%     1 0.6401  0.00 SELECT wx_member_base
+</code></pre>
+<p>第三部分：每一种查询的详细统计结果<br>
+由下面查询的详细统计结果，最上面的表格列出了执行次数、最大、最小、平均、95%等各项目的统计。<br>
+ID：查询的ID号，和上图的Query ID对应<br>
+Databases：数据库名<br>
+Users：各个用户执行的次数（占比）<br>
+Query_time distribution ：查询时间分布, 长短体现区间占比，本例中1s-10s之间查询数量是10s以上的两倍。<br>
+Tables：查询中涉及到的表<br>
+Explain：SQL语句</p>
+<pre><code class="language-bash"># Query 1: 0 QPS, 0x concurrency, ID 0xF9A57DD5A41825CA at byte 802 ______
+# This item is included in the report because it matches --limit.
+# Scores: V/M = 0.00
+# Time range: all events occurred at 2016-11-22 06:11:40
+# Attribute    pct   total     min     max     avg     95%  stddev  median
+# ============ === ======= ======= ======= ======= ======= ======= =======
+# Count         50       1
+# Exec time     76      2s      2s      2s      2s      2s       0      2s
+# Lock time      0       0       0       0       0       0       0       0
+# Rows sent     20       1       1       1       1       1       0       1
+# Rows examine   0       0       0       0       0       0       0       0
+# Query size     3      15      15      15      15      15       0      15
+# String:
+# Databases    test
+# Hosts        192.168.8.1
+# Users        mysql
+# Query_time distribution
+#   1us
+#  10us
+# 100us
+#   1ms
+#  10ms
+# 100ms
+#    1s  ################################################################
+#  10s+
+# EXPLAIN /*!50100 PARTITIONS*/
+select sleep(2)\G
+</code></pre>
+<p>解决:<br>
+1.查询时间长,查询次数多<br>
+2.IO大的sql,分析Rows Examine项,扫描的行数<br>
+3.未命中索引的sql,分析Rows Examine与Rows send发送的行数的对比</p>
+<h2 id="2-5-如何通过慢查日志发现有问题的sql">2-5 如何通过慢查日志发现有问题的SQL</h2>
+<p>1.查询次数多且每次查询占用时间长的SQL<br>
+通常为pt-query-digest分析的前几个查询<br>
+2.IO大的SQL<br>
+注意pt-query-digest分析中的Rows examine项<br>
+3.未命中索引的SQL<br>
+注意pt-query-digest分析中的Rows examine和Row send 的对比<br>
+当Rows examine&gt;&gt;Row send 基本上是使用了索引扫描或者表扫描的方式来进行查询，需要进行优化</p>
+<h2 id="2-6-通过explain查询和分析sql的执行计划">2-6 通过explain查询和分析SQL的执行计划</h2>
+<pre><code class="language-bash">mysql&gt; explain select customer_id,first_name,last_name from customer;
++----+-------------+----------+------+---------------+------+---------+------+------+-------+
+| id | select_type | table    | type | possible_keys | key  | key_len | ref  | rows | Extra |
++----+-------------+----------+------+---------------+------+---------+------+------+-------+
+|  1 | SIMPLE      | customer | ALL  | NULL          | NULL | NULL    | NULL |  599 | NULL  |
++----+-------------+----------+------+---------------+------+---------+------+------+-------+
+1 row in set (0.00 sec)
+</code></pre>
+<p><strong>explain 返回各列的含义</strong><br>
+select_type：<br>
+表示 <code>select</code> 查询的类型，主要是用于区分各种复杂的查询，例如：<code>普通查询</code>、<code>联合查询</code>、<code>子查询</code>等。</p>
+<ol>
+<li>SIMPLE：表示最简单的 select 查询语句，在查询中不包含子查询或者交并差集等操作。</li>
+<li>PRIMARY：查询中最外层的SELECT（存在子查询的外层的表操作为PRIMARY）。</li>
+<li>SUBQUERY：子查询中首个SELECT。</li>
+<li>DERIVED：被驱动的SELECT子查询（子查询位于FROM子句）。</li>
+<li>UNION：在SELECT之后使用了UNION。</li>
+</ol>
+<p>table：显示这一行的数据时关于哪张表的<br>
+type：显示连接使用了何种类型 const、eq_reg、ref、range、index和ALL；const：主键、索引；eq_reg：主键、索引的范围查找；ref：连接的查找（join），range：索引的范围查找；index：索引的扫描；<br>
+possible_keys：显示可能应用在这张表中的索引，如果为空，没有可能的索引<br>
+key：实际使用的索引，如果为null，没有使用索引<br>
+key_len：使用的索引的长度，在不损失精确性的情况下，长度越短越好<br>
+ref：显示索引的哪一列被使用了，如果可能的话，是一个常数<br>
+rows：mysql认为必须检查的用来返回请求数据的行数；<br>
+extra列需要注意的返回值<br>
+<strong>using filesort</strong>：mysql需要进行额外的步骤来发现如果对返回的行排序。它根据连接类型以及存储排序键值和匹配条件的全部行的行指针来排序全部行<br>
+<strong>using temporary</strong>：MySQL需要创建一个临时表来存储结果，这通常发生在对不同的列集进行order by上，而不是group by 上</p>
+<p>其中type是重要的列，以下从最好到最差：<br>
+const：是一个常数查找，一般是主键和唯一索引查找<br>
+eq_reg：主键和唯一索引的范围查找<br>
+ref：连接的查找，一般一个表是基于某一个索引的查找<br>
+range：基于索引的范围查找<br>
+index：基于索引的扫描<br>
+all：基于表扫描</p>
+<h2 id="2-7-count和max的优化">2-7 Count()和Max()的优化</h2>
+<h3 id="1对max查询可以为表创建索引">1.对max()查询，可以为表创建索引</h3>
+<p>利用max方法查询最后一笔交易的时间<br>
+explain select max(payment_date) from payment \G<br>
+\g:    定界符，等价于“；”<br>
+\G:    将查询到的横向表格纵向输出，方便阅读</p>
+<pre><code class="language-sql">mysql&gt; explain select max(payment_date) from payment \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: payment
+   partitions: NULL
+         type: ALL	# 全表扫描
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 16086
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>这里就是一个表扫描操作，一共扫描了16086行数据。如果数据表很大，这里的IO效率就会很差<br>
+优化方法：max(field)可以通过为field建立索引 来优化<br>
+语法:    create index index_name on table_name(column_name 规定需要索引的列)<br>
+create index idx_paydate on payment(payment_date);<br>
+优化后：</p>
+<pre><code class="language-sql">mysql&gt; explain select max(payment_date) from payment \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: NULL
+   partitions: NULL
+         type: NULL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: NULL
+     filtered: NULL
+        Extra: Select tables optimized away
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>优化之后并不需要查询表中的数据，而是通过索引就可以知道执行的结果了。<br>
+因为索引是顺序排列的，只需要查最后一个数据。这样就尽可能减少了IO操作。<br>
+而且这时候，不管表数据量有多大，查询max所需要的时间是基本固定的</p>
+<h3 id="2count对多个关键字进行查询">2.count()对多个关键字进行查询</h3>
+<p>比如在一条SQL中同时查出2006年和2007年电影的数量，语句：</p>
+<pre><code class="language-sql">select count(release_year='2006' or null) as '2006年电影数量',
+       count(release_year='2007' or null) as '2007年电影数量'
+from film;
+</code></pre>
+<p>这里解释一下为什么要加'or null'：<br>
+count()函数只有count(NULL)是才不计数，即count(NULL)=0；<br>
+而'release_year='2006''是个比较运算符，结果为1或者0，不管是不是2006 count函数都会计数。<br>
+当加上or null以后，当值不为2006，release_year='2006'的结果为0, '0 or null'结果为null，这样就排除了2006以外的结果<br>
+<strong>count(*) 和 count(field) 的区别</strong><br>
+count(*) 查询的结果中，包含了该列值为null的结果</p>
+<h2 id="2-8-子查询的优化">2-8 子查询的优化</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/5581b7ae506a3c95e3bfd542ef99cb60.png" alt="image.png" loading="lazy"><br>
+在子查询的优化中：<br>
+通常做法是把需要的子查询优化为join查询，但在优化时要注意是否有数据的重复，因为在关联语句中的可能存在一对多的关系，从而造成数据冗余。<br>
+join语句是相当于将多个表进行关联，在关联条件上一一进行条件匹配查询，因此返回值不仅取决于原始表中的数据个数，还取决于其他表中与之匹配的数据的个数。<br>
+所以要加上distinct</p>
+<pre><code class="language-sql">select distinct t.id from t join t1 on t.id=t1.tid;
+</code></pre>
+<h2 id="2-9-group-by的优化">2-9 group by的优化</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0dc90b299a7a3277c5c5f6a53586bf96.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/f7bcb83039ae31030069aea11c6e1e5c.png" alt="image.png" loading="lazy"><br>
+group by可能会出现临时表（Using temporary），文件排序（Using filesort）等，影响效率。<br>
+可以通过关联的子查询，来避免产生临时表和文件排序，可以节省io</p>
+<ol>
+<li>using()用于两张表的join查询，要求using()指定的列在两个表中均存在，并使用之用于join的条件;例如: select a.<em>, b.</em> from a left join b using(colA);</li>
+<li>group by 的列尽量要使用在有索引的列上,否则就会使用临时表和文件</li>
+</ol>
+<pre><code class="language-sql">改写前
+select actor.first_name,actor.last_name,count(*)
+from sakila.film_actor
+inner join sakila.actor using(actor_id)
+group by film_actor.actor_id;
+
+改写后
+select actor.first_name,actor.last_name,c.cnt
+from sakila.actor inner join(
+select actor_id,count(*) as cnt from sakila.film_actor group by
+actor_id
+)as c using(actor_id);
+</code></pre>
+<p>改写前</p>
+<pre><code class="language-sql">mysql&gt; explain select actor.first_name,actor.last_name,count(*)
+    -&gt; from sakila.film_actor
+    -&gt; inner join sakila.actor using(actor_id)
+    -&gt; group by film_actor.actor_id \G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: actor
+   partitions: NULL
+         type: ALL
+possible_keys: PRIMARY
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 200
+     filtered: 100.00
+        Extra: Using temporary; Using filesort
+*************************** 2. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film_actor
+   partitions: NULL
+         type: ref
+possible_keys: PRIMARY,idx_fk_film_id
+          key: PRIMARY
+      key_len: 2
+          ref: sakila.actor.actor_id
+         rows: 27
+     filtered: 100.00
+        Extra: Using index
+2 rows in set, 1 warning (0.00 sec)
+
+ERROR: 
+No query specified
+</code></pre>
+<p>改写后</p>
+<pre><code class="language-sql">mysql&gt; explain select actor.first_name,actor.last_name,c.cnt
+    -&gt; from sakila.actor inner join(
+    -&gt; select actor_id,count(*) as cnt from sakila.film_actor group by
+    -&gt; actor_id) as c using(actor_id) \G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: actor
+   partitions: NULL
+         type: ALL
+possible_keys: PRIMARY
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 200
+     filtered: 100.00
+        Extra: NULL
+*************************** 2. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: &lt;derived2&gt;
+   partitions: NULL
+         type: ref
+possible_keys: &lt;auto_key0&gt;
+          key: &lt;auto_key0&gt;
+      key_len: 2
+          ref: sakila.actor.actor_id
+         rows: 27
+     filtered: 100.00
+        Extra: NULL
+*************************** 3. row ***************************
+           id: 2
+  select_type: DERIVED
+        table: film_actor
+   partitions: NULL
+         type: index
+possible_keys: PRIMARY,idx_fk_film_id
+          key: PRIMARY
+      key_len: 4
+          ref: NULL
+         rows: 5462
+     filtered: 100.00
+        Extra: Using index
+3 rows in set, 1 warning (0.00 sec)
+
+ERROR: 
+No query specified
+</code></pre>
+<h2 id="2-10-limit查询的优化">2-10 Limit查询的优化</h2>
+<p>limit常用于分页处理，时常会伴随order by从句使用，因此大多时候会使用Filesorts这样会造成大量的io问题<br>
+1.使用有索引的列或主键进行order by操作<br>
+2.记录上次返回的主键，在下次查询时使用主键过滤<br>
+优化limit查询<br>
+例如: select film_id,description from sakila.film order by title limit 50,5; 语句的优化<br>
+这条语句的意思根据 title 字段升序，然后取从第51-55行的数据</p>
+<pre><code class="language-sql">mysql&gt; explain select film_id,description from sakila.film order by title limit 50,5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 1000
+     filtered: 100.00
+        Extra: Using filesort
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<ul>
+<li>优化步骤1:使用有索引的列或这件进行order by操作
+<ul>
+<li>select film_id,description from sakila.film order by film_id limit 50,5;</li>
+<li>(优化前是order by title非主键，优化后是order by film_id,是主键)</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-sql">mysql&gt; explain select film_id ,description from sakila.film order by film_id limit 50,5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: index
+possible_keys: NULL
+          key: PRIMARY
+      key_len: 2
+          ref: NULL
+         rows: 55
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.01 sec)
+</code></pre>
+<ul>
+<li>优化步骤2:记录上次返回的主键,在下次查询时用 主键过滤(避免了数据量大时扫描过多的记录)
+<ul>
+<li>select film_id,description from sakila.film where film_id &gt;50 order by film_id limit 5;</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-sql">mysql&gt; explain select film_id,description from sakila.film where film_id &gt;50 order by film_id limit 5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: range
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 2
+          ref: NULL
+         rows: 500
+     filtered: 100.00
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>使用这种方式有一个限制，就是主键一定要顺序排序和连续的，如果主键出现空缺可能会导致最终页面上显示的列表不足5条，解决办法是附加一列，保证这一列是自增的并增加索引就可以了<br>
+<strong>【推荐】使用下面这种方式:</strong></p>
+<blockquote>
+<p>【推荐】利用延迟关联或者子查询优化超多分页场景。<br>
+说明：MySQL并不是跳过offset行，而是取offset+N行，然后返回放弃前offset行，返回N行，那当offset特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过特定阈值的页数进行SQL改写。<br>
+正例：先快速定位需要获取的id段，然后再关联：<br>
+SELECT a.* FROM 表1 a, (select id from 表1 where 条件 LIMIT 100000,20 ) b where a.id=b.id</p>
+</blockquote>
+<pre><code class="language-sql">SELECT a.film_id,a.description FROM 
+sakila.film a, (SELECT film_id from sakila.film LIMIT 500,5) b where a.film_id=b.film_id;
+</code></pre>
+<h1 id="第3章-索引优化">第3章 索引优化</h1>
+<h2 id="3-1-如何选择合适的列建立索引">3-1 如何选择合适的列建立索引</h2>
+<h3 id="选择合适的索引列">选择合适的索引列</h3>
+<p>1.在where，group by，order by，on从句中出现的列<br>
+2.索引字段越小越好(因为数据库的存储单位是页，一页中能存下的数据越多越好 )<br>
+3.离散度大的列放在联合索引前面<br>
+select count(distinct customer_id), count(distinct staff_id) from payment;<br>
+是index(sftaff_id,customer_id)好？还是index(customer_id,staff_id)好呢？</p>
+<pre><code class="language-sql">mysql&gt; select count(distinct customer_id),count(distinct staff_id) from payment;
++-----------------------------+--------------------------+
+| count(distinct customer_id) | count(distinct staff_id) |
++-----------------------------+--------------------------+
+|                         599 |                        2 |
++-----------------------------+--------------------------+
+1 row in set (0.01 sec)
+</code></pre>
+<p>由于customer_id的离散度更大，所以应该使用index(customer_id,staff_id)</p>
+<h3 id="离散度的判断">离散度的判断</h3>
+<p>查看表的数据结构信息： desc 表名；<br>
+离散度：数据唯一值越多，离散度越高。<br>
+判断某一列的离散度：select count(distinct 字段名）from 表名；返回的结果值越大，说明离散度越大，建立联合索引时，应该放到前面；<br>
+例如：select count(distinct id),count(distinct real_name) from user;<br>
+id 是唯一值，所以离散度更高。而 real_name 会出现重复—&gt;会有同名同姓的情况，所以离散度低。</p>
+<h2 id="3-2-索引优化sql的方法">3-2 索引优化SQL的方法</h2>
+<h3 id="重复及冗余索引">重复及冗余索引</h3>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/8ef8a21534d75012a97544126ef1a0f1.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/c7206c882bc31e75e7e081bd07820192.png" alt="image.png" loading="lazy"><br>
+过多的索引不但影响写入，而且影响查询，索引越多，分析越慢<br>
+如何找到重复和多余的索引，主键已经是索引了，所以primay key 的主键不用再设置unique唯一索引了<br>
+冗余索引，是指多个索引的前缀列相同，innodb会在每个索引后面自动加上主键信息</p>
+<p>冗余索引查询工具<br>
+pt-duplicate-key-checker</p>
+<h3 id="查找重复及冗余索引">查找重复及冗余索引</h3>
+<p>通过统计信息库 information_schma 查找一些重复冗余的索引<br>
+use information_schema;</p>
+<pre><code class="language-sql">SELECT a.TABLE_SCHEMA AS '数据名'
+	,a.TABLE_NAME AS '表名'
+	,a.INDEX_NAME AS '索引1'
+	,b.INDEX_NAME AS '索引2'
+	,a.COLUMN_NAME AS '重复列名'
+FROM STATISTICS a 
+	JOIN STATISTICS b ON a.TABLE_SCHEMA = b.TABLE_SCHEMA
+						AND a.TABLE_NAME = b.TABLE_NAME
+						AND a.SEQ_IN_INDEX = b.SEQ_IN_INDEX
+						AND a.COLUMN_NAME = b.COLUMN_NAME
+WHERE a.SEQ_IN_INDEX = 1 AND a.INDEX_NAME &lt;&gt; b.INDEX_NAME
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/f7cda43a0ba325da21b13c3969346df2.png" alt="image.png" loading="lazy"><br>
+使用 pt-duplicate-key-checher 工具检查重复及冗余索引</p>
+<pre><code class="language-bash">pt-duplicate-key-checker -uroot -p'123456' -h 127.0.0.1
+</code></pre>
+<h2 id="3-3-索引维护的方法">3-3 索引维护的方法</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6fb10d7408fa3caf8b21895c0548f321.png" alt="image.png" loading="lazy"><br>
+索引的维护及优化---删除不用索引<br>
+目前MySQL中还没有记录索引的使用情况,但是在PerconMySQL和MariaDB中可以通过INDEX_STATISTICS表来查看那些索引未使用,但在MySQL中目前只能通过慢查日志配合 pt-index-usage 工具来进行索引使用情况的分析。</p>
+<h2 id="3-4-索引失效的情况">3-4 索引失效的情况</h2>
+<ul>
+<li>对于组合索引，不是使用组合索引最左边的字段，则不会使用索引(<strong>违法最左前缀法则</strong>)<br>
+如果建立的是复合索引，索引的顺序要按照建立时的顺序，即从左到右，并且不跳过索引中的列，如：a-&gt;b-&gt;c（和 B+树的数据结构有关）<br>
+无效索引举例:
+<ul>
+<li>a-&gt;c：a 有效，c 无效</li>
+<li>b-&gt;c：b、c 都无效</li>
+<li>c：c 无效</li>
+</ul>
+</li>
+<li>以%开头的like查询如%abc，无法使用索引；非%开头的like查询如abc%，相当于范围查询，会使用索引</li>
+<li>查询条件中列类型是字符串，没有使用引号，可能会因为类型不同发生隐式转换，使索引失效</li>
+<li>判断索引列是否不等于某个值时</li>
+<li>对索引列进行运算</li>
+<li>查询条件使用or连接，也会导致索引失效</li>
+</ul>
+<h1 id="第4章-数据库结构优化">第4章 数据库结构优化</h1>
+<h2 id="4-1-选择合适的数据类型">4-1 选择合适的数据类型</h2>
+<p>1.使用可存下数据的最小的数据类型<br>
+2.使用简单地数据类型，Int要比varchar类型在mysql处理上更简单<br>
+3.尽可能使用not null定义字段，这是由innodb的特性决定的，因为非not null的数据可能需要一些额外的字段进行存储，这样就会增加一些IO。可以对非null的字段设置一个默认值<br>
+4.尽量少用text，非用不可最好<strong>分表</strong>，将text字段存放到另一张表中，在需要的时候再使用联合查询，这样可提高查询主表的效率</p>
+<h3 id="例子1-用int存储日期时间">例子1、用Int存储日期时间</h3>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/173a9902527f649b977425ad0a188b35.png" alt="image.png" loading="lazy"><br>
+from_unixtime() 可将Int类型的时间戳转换为时间格式<br>
+select from_unixtime(1392178320); 输出为 2014-02-12 12:12:00<br>
+unix_timestamp() 可将时间格式转换为Int类型<br>
+select unix_timestamp('2014-02-12 12:12:00'); 输出为1392178320</p>
+<pre><code class="language-sql">mysql&gt; create table testtime(id int auto_increment not null,timestr int,PRIMARY KEY(id));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql&gt; desc testtime;
++---------+---------+------+-----+---------+----------------+
+| Field   | Type    | Null | Key | Default | Extra          |
++---------+---------+------+-----+---------+----------------+
+| id      | int(11) | NO   | PRI | NULL    | auto_increment |
+| timestr | int(11) | YES  |     | NULL    |                |
++---------+---------+------+-----+---------+----------------+
+2 rows in set (0.01 sec)
+mysql&gt; insert into testtime(timestr) values(UNIX_TIMESTAMP('2014-06-01 21:00:00'));
+Query OK, 1 row affected (0.00 sec)
+
+mysql&gt; select FROM_UNIXTIME(timestr) from testtime;
++------------------------+
+| FROM_UNIXTIME(timestr) |
++------------------------+
+| 2014-06-01 21:00:00    |
++------------------------+
+1 row in set (0.00 sec)
+</code></pre>
+<h3 id="例子2-存储ip地址bigint">例子2、存储IP地址——bigInt</h3>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/989a867c54500273610199805c158d28.png" alt="image.png" loading="lazy"><br>
+利用 inet_aton() , inet_ntoa() 转换<br>
+select inet_aton('192.169.1.1'); 输出为3232301313<br>
+select inet_ntoa(3232301313); 输出为192.169.1.1</p>
+<h2 id="4-2-数据库表的范式化优化">4-2 数据库表的范式化优化</h2>
+<figure data-type="image" tabindex="2"><img src="https://img-blog.csdnimg.cn/img_convert/7bfe83b916fa9cebb10c70779f1515b7.png" alt="image.png" loading="lazy"></figure>
+<p>表的范式化即数据库设计的规范化：数据表不存在非关键字段对任意关键字段的传递函数依赖，则符合第三范式。<br>
+可以将一张数据表进行拆分，来满足第三范式的要求。<br>
+设计表的时候符合范式化是为了：减少数据冗余、减少表的插入、更新、删除异常<br>
+设计表的时候使用反范式化是为了：以空间换时间、增强代码的可编程性和可维护性<br>
+不符合第三范式要求的表存在以下问题：<br>
+1.数据冗余:（分类、分类描述）对于每一个商品都会进行记录<br>
+2.数据插入异常<br>
+3.数据更新异常<br>
+4.数据删除异常(如果删除了所有饮料类的商品，就查询不到分类，分类描述了)</p>
+<p>分类描述依赖于分类，分类又依赖于商品名称，而商品名称为主键——关键字段<br>
+当不符合第三范式的时候，可以拆分表为两份表，用之前的非关键字列作为新表的关键字，然后建立起新表和旧表的关联表<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/90f51645c8ea9e9f13f6a8765a3be5bf.png" alt="image.png" loading="lazy"></p>
+<h2 id="4-3-数据库表的反范式化优化">4-3 数据库表的反范式化优化</h2>
+<p>反范式化：为了查询效率的考虑，把原本符合第三范式的表适当增加冗余，以达到优化查询效率的目的。以空间换取时间的操作。<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/2386bdcfa412906b56935d8998c8853f.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/38017608754f1be79ab99f341cb04cca.png" alt="image.png" loading="lazy"></p>
+<p>为提高io读的效率，牺牲一些存储空间的代价。但是提高了读取数据的效率。<br>
+如用户常常会大量查询订单的信息，那么把用户名，电话，地址和订单价格放入一个订单表中，虽然违反了第三范式，因为订单id，用户名，电话，地址等，存在传递函数依赖，但是由于数据都是在一张表中，方便了sql语句实现，订单信息的读取，从而优化了io性能；<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/e40fada07c84f9d076092ce55e02e1ca.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/0598e3da7044a769046cdb876966594c.png" alt="image.png" loading="lazy"></p>
+<h2 id="4-4-数据库表的垂直拆分">4-4 数据库表的垂直拆分</h2>
+<p><strong>表的垂直拆分的原则</strong><br>
+所谓垂直拆分，就是把原来一个有很多列的表拆分成多个表解决表的宽度问题，通常拆分原则如下：<br>
+1、把不常用的字段单独存放到一个表中<br>
+2、把大字段独立存放到一个表中<br>
+3、把经常一起使用的字段放到一起<br>
+当表的宽度过宽的时候，我们需要对表进行垂直拆分，具体的建议如下（原则上是人以群分，列以表分）：一表变多表，物理上不在一起，逻辑上是在一起的！<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/7ba600cd3c7c0809090e8e4f8c40c50d.png" alt="image.png" loading="lazy"><br>
+<strong>拆分后</strong><br>
+<strong>把 title 和 description 通过 film_id 建立一个新表</strong><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/86a5767177444bd8823645fb9a55cc8b.png" alt="image.png" loading="lazy"></p>
+<figure data-type="image" tabindex="3"><img src="https://img-blog.csdnimg.cn/img_convert/f6db234c0d55e11b6d6811bb0d3fefb7.png" alt="image.png" loading="lazy"></figure>
+<h2 id="4-5-数据库表的水平拆分">4-5 数据库表的水平拆分</h2>
+<p>表的水平拆分: 主要是解决数据量过大的问题,水平拆分每个表的表结构都是完全一致的(当单表的数据大于一亿时,尽管加了索引,还是会比较慢);<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/04e296aea6f5a0dc4e8cd592281a6320.png" alt="image.png" loading="lazy"></p>
+<p>常用的方法是：hash取模拆分<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/a8b4b8685ca35bc84380345581f9da8c.png" alt="image.png" loading="lazy"><br>
+1、对大表的主键id值进行hash运算，比如要拆分为5张表，可以使用mod(主键id，5）取出0-4个值<br>
+2、针对不同的hashID把数据存到不同的表中。<br>
+挑战：</p>
+<ol>
+<li>跨分区表进行数据查询</li>
+<li>统计及后台报表操作</li>
+</ol>
+<h3 id="垂直拆分与水平拆分区别">垂直拆分与水平拆分区别:</h3>
+<p><strong>水平拆分  解决数据量的问题 垂直拆分解决表的宽度问题，后台用总表，前台用拆分表</strong><br>
+<strong>垂直拆分是拆字段    水平拆分是表结构不变  把数据给分开了</strong></p>
+<h1 id="第5章-系统配置优化">第5章 系统配置优化</h1>
+<h2 id="5-1-数据库系统配置优化">5-1 数据库系统配置优化</h2>
+<h3 id="1-网络方面">1. 网络方面</h3>
+<figure data-type="image" tabindex="4"><img src="https://img-blog.csdnimg.cn/img_convert/0305c93424fadfa67dc7be11bcf9ff7a.png" alt="image.png" loading="lazy"></figure>
+<ul>
+<li>增加tcp支持的队列数目，net.ipv4.tcp_max_syn_backlog=65535</li>
+<li>减少断开连接的数目，及时回收资源</li>
+</ul>
+<p>net.ipv4.tcp_max_tw_buckets = 8000<br>
+net.ipv4.tcp_tw_reuse = 1<br>
+net.ipv4.tcp_tw_recycle =1<br>
+net.ipv4.tcp_fin_timeout=10</p>
+<h3 id="2-打开文件数的限制">2. 打开文件数的限制</h3>
+<p>修改/etc/security/limits.conf文件，增加一下内容以修改打开文件数量的限制。<br>
+关闭iptables，selinux等防火墙软件<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/1231fc052c217591a60166f88b3f2990.png" alt="image.png" loading="lazy"></p>
+<h2 id="5-2-mysql配置文件优化">5-2 MySQL配置文件优化</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/b84501743d7b4436fe66247f64041d81.png" alt="image.png" loading="lazy"><br>
+/usr/sbin/mysqld - -verbose - -help | grep -A 1 'Default options '<br>
+查看MySQL配置文件路径，如果存在多个配置文件，则后面的会覆盖前面的</p>
+<ul>
+<li><strong>innodb_buffer_pool_size</strong></li>
+</ul>
+<p>重要，缓冲池的大小 推荐总内存量的75%，越大越好。</p>
+<pre><code class="language-sql">select engine,
+round(sum(data_length+index_length)/1024/1024,1) as &quot;Total MB&quot;
+FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN 
+(&quot;inoformation_schema&quot;,&quot;performance_schema&quot;)
+Group by engine;
+
+mysql&gt; select engine,
+    -&gt; round(sum(data_length+index_length)/1024/1024,1) as &quot;Total MB&quot;
+    -&gt; FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN 
+    -&gt; (&quot;inoformation_schema&quot;,&quot;performance_schema&quot;)
+    -&gt; Group by engine;
++--------+----------+
+| engine | Total MB |
++--------+----------+
+| NULL   |     NULL |
+| CSV    |      0.0 |
+| InnoDB |      9.0 |
+| MEMORY |      0.0 |
+| MyISAM |      0.3 |
++--------+----------+
+5 rows in set (0.11 sec)
+</code></pre>
+<ul>
+<li><strong>innodb_buffer_pool_instances</strong></li>
+</ul>
+<p>默认只有一个缓冲池，如果一个缓冲池中并发量过大，容易阻塞，此时可以分为多个缓冲池；</p>
+<ul>
+<li><strong>innodb_log_buffer_size</strong></li>
+</ul>
+<p>log缓冲的大小，一般最常1s就会刷新一次，故不用太大；<br>
+​</p>
+<ul>
+<li><strong>innodb_flush_log_at_trx_commit</strong></li>
+</ul>
+<p>重要，对io效率影响较大。<br>
+0: 1s刷新一次到磁盘；<br>
+1：每次提交都会刷新到磁盘；<br>
+2：每次提交刷新到缓冲区，1s刷新到磁盘；默认为1。<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/dbd3fceb0459a668bfc36112157e89d8.png" alt="image.png" loading="lazy"><br>
+​</p>
+<ul>
+<li>innodb_read_io_threads</li>
+<li>innodb_write_io_threads</li>
+</ul>
+<p>读写的io进程数量，默认为4</p>
+<ul>
+<li>innodb_file_per_table</li>
+</ul>
+<p>重要，控制每个表使用独立的表空间，默认为OFF，即所有表建立在一个共享的表空间中。造成IO瓶颈。推荐设置ON<br>
+​</p>
+<ul>
+<li>innodb_stats_on_metadata</li>
+</ul>
+<p>mysql在什么情况下会刷新表的统计信息，一般为OFF。<br>
+​</p>
+<h2 id="5-3-第三方配置工具使用">5-3 第三方配置工具使用</h2>
+<p>mysql第三方配置工具:<br>
+<a href="https://tools.percona.com/wizard">https://tools.percona.com/wizard</a></p>
+<h1 id="第6章-服务器硬件优化">第6章 服务器硬件优化</h1>
+<h2 id="6-1-服务器硬件优化">6-1 服务器硬件优化</h2>
+<p>服务器硬件优化:<br>
+1.cpu选择:mysql一个sql的执行只能用到单核的cpu,其次,在复制进程的时候也是只能用到单核的cpu,所以cpu并不是越多越好,mysql5.5是的服务器不要超过32核,偏向选择单核频率更快的cpu;<br>
+2.Disk IO 优化<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/841bf06f19ce81dd44d0756d2be1d107.png" alt="image.png" loading="lazy"><br>
+常用的RAID 级别简介<br>
+RAID0: 也称为条带,多个磁盘接成一个使用,io最好(但是磁盘坏了,数据没了,安全性差)<br>
+RAID1: 也称镜像,要求至少两个磁盘,每组磁盘存储的数据相同;<br>
+RAID1+0:  就是RAID1和RAID0的结合,同时具备两个级别的优缺点,推荐数据库使用这个级别;<br>
+目前可能还有更好的存储设备:比如ssd卡<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/f13c237f532bcb844769ca0f2ddc6ba8.png" alt="image.png" loading="lazy"></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Spring Boot 2 基础篇学习笔记]]></title>
+        <id>https://junwuyi.github.io/spring-boot-2-ji-chu-pian-xue-xi-bi-ji/</id>
+        <link href="https://junwuyi.github.io/spring-boot-2-ji-chu-pian-xue-xi-bi-ji/">
+        </link>
+        <updated>2021-11-15T04:05:24.000Z</updated>
+        <content type="html"><![CDATA[<p><a href="https://blog.csdn.net/qq_42324086/article/details/121386859">Spring Boot 2 运维实用篇学习笔记</a><br>
+<ul class="markdownIt-TOC">
+<li><a href="#01-%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83">01-开发环境</a></li>
+<li><a href="#02-%E5%86%85%E5%AE%B9%E4%BB%8B%E7%BB%8D">02-内容介绍</a></li>
+<li><a href="#03-springboot%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8Bidea%E8%81%94%E7%BD%91%E7%89%88">03-SpringBoot入门案例（Idea联网版）</a></li>
+<li><a href="#04-springboot%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E5%AE%98%E7%BD%91%E5%88%9B%E5%BB%BA%E7%89%88">04-SpringBoot入门案例（官网创建版）</a></li>
+<li><a href="#05-springboot%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E9%98%BF%E9%87%8C%E4%BA%91%E7%89%88">05-SpringBoot入门案例（阿里云版）</a></li>
+<li><a href="#06-springboot%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E6%89%8B%E5%B7%A5%E5%88%B6%E4%BD%9C%E7%89%88">06-SpringBoot入门案例（手工制作版）</a></li>
+<li><a href="#07-%E6%95%99%E4%BD%A0%E4%B8%80%E6%8B%9B%E9%9A%90%E8%97%8F%E6%96%87%E4%BB%B6%E6%88%96%E6%96%87%E4%BB%B6%E5%A4%B9">07-教你一招：隐藏文件或文件夹</a></li>
+<li><a href="#08-%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90parent">08-入门案例解析：parent</a></li>
+<li><a href="#09-%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90starter">09-入门案例解析：starter</a></li>
+<li><a href="#10-%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90%E5%BC%95%E5%AF%BC%E7%B1%BB">10-入门案例解析：引导类</a></li>
+<li><a href="#11-%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8B%E8%BE%85%E5%8A%A9%E5%8A%9F%E8%83%BD">11-入门案例：辅助功能</a>
+<ul>
+<li><a href="#%E6%80%BB%E7%BB%93">总结:</a></li>
+</ul>
+</li>
+<li><a href="#12-%E6%95%99%E4%BD%A0%E4%B8%80%E6%8B%9B%E5%A4%8D%E5%88%B6%E6%A8%A1%E5%9D%97">12-教你一招：复制模块</a></li>
+<li><a href="#13-%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F">13-属性配置方式</a></li>
+<li><a href="#14-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE">14-基础配置</a></li>
+<li><a href="#15-3%E7%A7%8D%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B">15-3种配置文件类型</a></li>
+<li><a href="#16-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%8A%A0%E8%BD%BD%E4%BC%98%E5%85%88%E7%BA%A7">16-配置文件加载优先级</a></li>
+<li><a href="#17-%E6%95%99%E4%BD%A0%E4%B8%80%E6%8B%9B%E5%B1%9E%E6%80%A7%E6%8F%90%E7%A4%BA%E6%B6%88%E5%A4%B1%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">17-教你一招：属性提示消失解决方案</a></li>
+<li><a href="#18-yaml%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F">18-yaml数据格式</a>
+<ul>
+<li><a href="#yaml">yaml</a></li>
+<li><a href="#yaml%E8%AF%AD%E6%B3%95%E8%A7%84%E5%88%99">yaml语法规则</a>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95">基本语法</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">数据类型</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#19-%E8%AF%BB%E5%8F%96yaml%E5%8D%95%E4%B8%80%E5%B1%9E%E6%80%A7%E6%95%B0%E6%8D%AE">19-读取yaml单一属性数据</a></li>
+<li><a href="#20-yaml%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%8F%98%E9%87%8F%E5%BC%95%E7%94%A8">20-yaml文件中的变量引用</a></li>
+<li><a href="#21-%E8%AF%BB%E5%8F%96yaml%E5%85%A8%E9%83%A8%E5%B1%9E%E6%80%A7%E6%95%B0%E6%8D%AE">21-读取yaml全部属性数据</a></li>
+<li><a href="#22-%E8%AF%BB%E5%8F%96yaml%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%E5%B1%9E%E6%80%A7%E6%95%B0%E6%8D%AE">22-读取yaml引用类型属性数据</a></li>
+<li><a href="#23-springboot%E6%95%B4%E5%90%88junit">23-SpringBoot整合JUnit</a></li>
+<li><a href="#24-%E6%95%B4%E5%90%88junitclasses%E5%B1%9E%E6%80%A7">24-整合JUnit——classes属性</a></li>
+<li><a href="#25-springboot%E6%95%B4%E5%90%88mybatis">25-SpringBoot整合MyBatis</a></li>
+<li><a href="#26-springboot%E6%95%B4%E5%90%88mybatis%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86">26-SpringBoot整合MyBatis常见问题处理</a></li>
+<li><a href="#27-springboot%E6%95%B4%E5%90%88mybatisplus">27-SpringBoot整合MyBatisPlus</a></li>
+<li><a href="#28-springboot%E6%95%B4%E5%90%88druid">28-SpringBoot整合Druid</a></li>
+<li><a href="#29-ssmp%E6%95%B4%E5%90%88%E6%A1%88%E4%BE%8B%E5%88%B6%E4%BD%9C%E5%88%86%E6%9E%90">29-SSMP整合案例制作分析</a>
+<ul>
+<li><a href="#%E6%A1%88%E4%BE%8B%E6%95%88%E6%9E%9C%E6%BC%94%E7%A4%BA">案例效果演示:</a></li>
+<li><a href="#%E6%A1%88%E4%BE%8B%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90%E4%B8%8E%E6%B5%81%E7%A8%8B%E8%A7%A3%E6%9E%90">案例实现方案分析与流程解析</a></li>
+</ul>
+</li>
+<li><a href="#30-%E6%A8%A1%E5%9D%97%E5%88%9B%E5%BB%BA">30-模块创建</a>
+<ul>
+<li><a href="#tbl_booksql">tbl_book.sql</a></li>
+</ul>
+</li>
+<li><a href="#31-%E5%AE%9E%E4%BD%93%E7%B1%BB%E5%BF%AB%E9%80%9F%E5%BC%80%E5%8F%91lombok">31-实体类快速开发（lombok）</a></li>
+<li><a href="#32-%E6%95%B0%E6%8D%AE%E5%B1%82%E6%A0%87%E5%87%86%E5%BC%80%E5%8F%91%E5%9F%BA%E7%A1%80crud">32-数据层标准开发（基础CRUD）</a></li>
+<li><a href="#33-%E5%BC%80%E5%90%AFmp%E8%BF%90%E8%A1%8C%E6%97%A5%E5%BF%97">33-开启MP运行日志</a></li>
+<li><a href="#34-%E5%88%86%E9%A1%B5">34-分页</a></li>
+<li><a href="#35-%E6%95%B0%E6%8D%AE%E5%B1%82%E6%A0%87%E5%87%86%E5%BC%80%E5%8F%91%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2">35-数据层标准开发（条件查询）</a></li>
+<li><a href="#36-%E4%B8%9A%E5%8A%A1%E5%B1%82%E6%A0%87%E5%87%86%E5%BC%80%E5%8F%91%E5%9F%BA%E7%A1%80crud">36-业务层标准开发（基础CRUD）</a></li>
+<li><a href="#37-%E4%B8%9A%E5%8A%A1%E5%B1%82%E5%BF%AB%E9%80%9F%E5%BC%80%E5%8F%91%E5%9F%BA%E4%BA%8Emybatisplus%E6%9E%84%E5%BB%BA">37-业务层快速开发（基于MyBatisPlus构建）</a></li>
+<li><a href="#38-%E8%A1%A8%E7%8E%B0%E5%B1%82%E6%A0%87%E5%87%86%E5%BC%80%E5%8F%91">38-表现层标准开发</a></li>
+<li><a href="#39-%E8%A1%A8%E7%8E%B0%E5%B1%82%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E5%A4%84%E7%90%86r%E5%AF%B9%E8%B1%A1">39-表现层数据一致性处理（R对象）</a></li>
+<li><a href="#40-%E5%89%8D%E5%90%8E%E7%AB%AF%E8%B0%83%E7%94%A8axios%E5%8F%91%E9%80%81%E5%BC%82%E6%AD%A5%E8%AF%B7%E6%B1%82">40-前后端调用（axios发送异步请求）</a>
+<ul>
+<li><a href="#%E4%BD%BF%E7%94%A8vue%E7%9A%84%E6%96%B9%E6%B3%95%E6%97%B6%E6%8F%90%E7%A4%BA%E6%8A%A5%E9%94%99">使用VUE的方法时提示报错：</a></li>
+</ul>
+</li>
+<li><a href="#41-%E5%88%97%E8%A1%A8%E5%8A%9F%E8%83%BD">41-列表功能</a></li>
+<li><a href="#42-%E6%B7%BB%E5%8A%A0%E5%8A%9F%E8%83%BD">42-添加功能</a></li>
+<li><a href="#43-%E5%88%A0%E9%99%A4%E5%8A%9F%E8%83%BD">43-删除功能</a></li>
+<li><a href="#44%E4%BF%AE%E6%94%B9%E5%8A%9F%E8%83%BD%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE">44修改功能（加载数据）</a></li>
+<li><a href="#45-%E4%BF%AE%E6%94%B9%E5%8A%9F%E8%83%BD">45-修改功能</a></li>
+<li><a href="#46-%E5%BC%82%E5%B8%B8%E6%B6%88%E6%81%AF%E5%A4%84%E7%90%86">46-异常消息处理</a></li>
+<li><a href="#47-%E5%88%86%E9%A1%B5">47-分页</a></li>
+<li><a href="#48-%E5%88%86%E9%A1%B5%E5%8A%9F%E8%83%BD%E7%BB%B4%E6%8A%A4%E5%88%A0%E9%99%A4bug">48-分页功能维护（删除BUG）</a></li>
+<li><a href="#49-%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2">49-条件查询</a></li>
+<li><a href="#50-%E5%9F%BA%E7%A1%80%E7%AF%87%E5%AE%8C%E7%BB%93">50-基础篇完结</a>
+<ul>
+<li><a href="#%E5%9F%BA%E4%BA%8Espringboot%E7%9A%84ssmp%E6%95%B4%E5%90%88%E6%A1%88%E4%BE%8B">基于SpringBoot的SSMP整合案例</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="01-开发环境">01-开发环境</h1>
+<p>学习要求</p>
+<ul>
+<li>熟悉Spring基础</li>
+<li>熟悉Maven使用</li>
+</ul>
+<p>环境要求</p>
+<ul>
+<li>Java8及以上</li>
+<li>Maven 3.5及以上：https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started.html#getting-started-system-requirements</li>
+</ul>
+<p>学习资料</p>
+<ul>
+<li>Spring Boot官网：https://spring.io/projects/spring-boot</li>
+<li>Spring Boot官方文档：https://docs.spring.io/spring-boot/docs/current/reference/html/</li>
+<li>视频地址： https://www.bilibili.com/video/BV15b4y1a7yG?p=24&amp;share_source=copy_web</li>
+<li>源码地址：https://github.com/junwuyi/springboot-study</li>
+</ul>
+<h1 id="02-内容介绍">02-内容介绍</h1>
+<ul>
+<li>基础篇</li>
+</ul>
+<pre><code class="language-java">Java基础语法
+Spring与SpringMVC
+	知道Spring是用来管理bean，能够基于Restful实现页面请求交互功能
+Mybatis与Mybatis-Plus
+	基于Mybatis和MybatisPlus能够开发出包含基础CRUD功能的标准Dao模块
+数据库MySQL
+	能够读懂基础CRUD功能的SQL语句
+服务器
+	知道服务器与web工程的关系，熟悉web服务器的基础配置
+maven
+	知道maven的依赖关系，知道什么是依赖范围，依赖传递，排除依赖，可选依赖，继承
+web技术（含vue，ElementUI)
+	知道vue如何发送ajax请求，如何获取响应数据，如何进行数据模型双向绑定
+</code></pre>
+<h1 id="03-springboot入门案例idea联网版">03-SpringBoot入门案例（Idea联网版）</h1>
+<ul>
+<li>SpringBoot是由Pivotal团队提供的全新框架，其设计目的是用来简化Spring应用的初始搭建以及开发过程</li>
+</ul>
+<p>①：创建新模块，选择Spring Initializr，并配置模块相关基础信息<br>
+<img src="https://img-blog.csdnimg.cn/0839ab0b92fc4deea70e706e84c9a27d.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+②：选择当前模块需要使用的技术集<br>
+<img src="https://img-blog.csdnimg.cn/5108acf698f8423aa6d0ecc73f133a4e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+<p>③：开发控制器类</p>
+<pre><code class="language-java">//Rest 模式
+@RestController
+@RequestMapping(&quot;/books&quot;)
+public class BookController {
+    @GetMapping
+    public String getById() {
+        System.out.println(&quot;springboot is running...&quot;);
+        return &quot;springboot is running...&quot;;
+    }
+}
+</code></pre>
+<p>④：运行自动生成的Application类<br>
+<img src="https://img-blog.csdnimg.cn/e0d7e6b7371845e8a91aa6aebaccc94c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+⑤：打开浏览器访问url地址为：http://localhost:8080/books</p>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/163c4ae2c0c0411a92cad10009683141.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<ul>
+<li>最简SpringBoot程序所包含的基础文件 (pom.xml文件 和 Application类 )
+<ul>
+<li>pom.xml文件</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;2.5.6&lt;/version&gt;
+    &lt;/parent&gt;
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;springboot-01-quickstart&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+</code></pre>
+<ul>
+<li>Application类</li>
+</ul>
+<pre><code class="language-java">@SpringBootApplication
+public class Springboot0101QuickstartApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Springboot0101QuickstartApplication.class, args);
+    }
+
+}
+</code></pre>
+<ul>
+<li>Spring程序与SpringBoot程序对比<br>
+<img src="https://img-blog.csdnimg.cn/414b7f3210694d5a8686a62ae4f9feff.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+注意:	基于idea开发SpringBoot程序需要确保联网且能够加载到程序框架结构</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>开发SpringBoot程序可以根据向导进行联网快速制作</li>
+<li>SpringBoot程序需要基于JDK8进行制作</li>
+<li>SpringBoot程序中需要使用何种功能通过勾选选择技术</li>
+<li>运行SpringBoot程序通过运行Application程序入口进行</li>
+</ol>
+<h1 id="04-springboot入门案例官网创建版">04-SpringBoot入门案例（官网创建版）</h1>
+<ul>
+<li>基于SpringBoot官网创建项目，地址：https://start.spring.io/<br>
+<img src="https://img-blog.csdnimg.cn/e74fee358083447a80a38fde8ade98e2.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>打开SpringBoot官网，选择Quickstart Your Project</li>
+<li>创建工程，并保存项目</li>
+<li>解压项目，通过IDE导入项目</li>
+</ol>
+<h1 id="05-springboot入门案例阿里云版">05-SpringBoot入门案例（阿里云版）</h1>
+<ul>
+<li>基于阿里云创建项目，地址：https://start.aliyun.com<br>
+<img src="https://img-blog.csdnimg.cn/6bcd048d7f014158b0aab0617ca36c63.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<p>注意事项:</p>
+<ul>
+<li>阿里云提供的坐标版本较低，如果需要使用高版本，进入工程后手工切换SpringBoot版本</li>
+<li>阿里云提供的工程模板与Spring官网提供的工程模板略有不同</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>选择start来源为自定义URL</li>
+<li>输入阿里云start地址</li>
+<li>创建项目</li>
+</ol>
+<h1 id="06-springboot入门案例手工制作版">06-SpringBoot入门案例（手工制作版）</h1>
+<ul>
+<li>手工创建项目（手工导入坐标）<br>
+<img src="https://img-blog.csdnimg.cn/1724035ac0724e3ca3177fd10e77f77a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;2.5.6&lt;/version&gt;
+    &lt;/parent&gt;
+
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;springboot_01_04_quickstart&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+</code></pre>
+<ul>
+<li>手工创建项目（手工制作引导类）</li>
+</ul>
+<pre><code class="language-java">@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+}
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>创建普通Maven工程</li>
+<li>继承spring-boot-starter-parent</li>
+<li>添加依赖spring-boot-starter-web</li>
+<li>制作引导类Application</li>
+</ol>
+<p>总结:</p>
+<ol>
+<li>创建SpringBoot工程的四种方式<br>
+基于Idea创建SpringBoot工程<br>
+基于官网创建SpringBoot工程<br>
+基于阿里云创建SpringBoot工程<br>
+<strong>手工创建Maven工程修改为SpringBoot工程</strong></li>
+</ol>
+<h1 id="07-教你一招隐藏文件或文件夹">07-教你一招：隐藏文件或文件夹</h1>
+<ul>
+<li>.mvn;.gitignore;HELP.md;mvnw;mvnw.cmd;*.iml;<br>
+<img src="https://img-blog.csdnimg.cn/e2014530ac5b432ba546e44ec00c1ca4.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<p>2018版的做法:<br>
+<img src="https://img-blog.csdnimg.cn/52caab4e4aae44aa98a3fc8815c93083.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+较新版本的做法 :<br>
+<img src="https://img-blog.csdnimg.cn/fd8efbad436e406c900ad501d3af496e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+小结:</p>
+<ol>
+<li>Idea中隐藏指定文件或指定类型文件<br>
+Setting → File Types → Ignored Files and Folders<br>
+输入要隐藏的文件名，支持*号通配符<br>
+回车确认添加</li>
+</ol>
+<h1 id="08-入门案例解析parent">08-入门案例解析：parent</h1>
+<figure data-type="image" tabindex="2"><img src="https://img-blog.csdnimg.cn/7cc7cea23a274189855c039ea6c8613a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<ul>
+<li>parent</li>
+</ul>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;2.5.6&lt;/version&gt;
+    &lt;/parent&gt;
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;springboot-01-quickstart&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+</code></pre>
+<p>按住Ctrl点击pom.xml中的spring-boot-starter-parent，跳转到了spring-boot-starter-parent的pom.xml，xml配置如下（只摘抄了部分重点配置）：</p>
+<pre><code class="language-xml">  &lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-dependencies&lt;/artifactId&gt;
+    &lt;version&gt;2.5.6&lt;/version&gt;
+  &lt;/parent&gt;
+</code></pre>
+<p>按住Ctrl点击pom.xml中的spring-boot-starter-dependencies，跳转到了spring-boot-starter-dependencies的pom.xml，xml配置如下（只摘抄了部分重点配置）：</p>
+<pre><code class="language-xml">&lt;properties&gt;
+  	&lt;activemq.version&gt;5.15.3&lt;/activemq.version&gt;
+  	&lt;antlr2.version&gt;2.7.7&lt;/antlr2.version&gt;
+  	&lt;appengine-sdk.version&gt;1.9.63&lt;/appengine-sdk.version&gt;
+  	&lt;artemis.version&gt;2.4.0&lt;/artemis.version&gt;
+  	&lt;aspectj.version&gt;1.8.13&lt;/aspectj.version&gt;
+  	&lt;assertj.version&gt;3.9.1&lt;/assertj.version&gt;
+  	&lt;atomikos.version&gt;4.0.6&lt;/atomikos.version&gt;
+  	&lt;bitronix.version&gt;2.1.4&lt;/bitronix.version&gt;
+  	&lt;build-helper-maven-plugin.version&gt;3.0.0&lt;/build-helper-maven-plugin.version&gt;
+  	&lt;byte-buddy.version&gt;1.7.11&lt;/byte-buddy.version&gt;
+  	... ... ...
+&lt;/properties&gt;
+&lt;dependencyManagement&gt;
+  	&lt;dependencies&gt;
+      	&lt;dependency&gt;
+        	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        	&lt;artifactId&gt;spring-boot&lt;/artifactId&gt;
+        	&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+      	&lt;/dependency&gt;
+      	&lt;dependency&gt;
+        	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        	&lt;artifactId&gt;spring-boot-test&lt;/artifactId&gt;
+        	&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+      	&lt;/dependency&gt;
+      	... ... ...
+	&lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+&lt;build&gt;
+  	&lt;pluginManagement&gt;
+    	&lt;plugins&gt;
+      		&lt;plugin&gt;
+        		&lt;groupId&gt;org.jetbrains.kotlin&lt;/groupId&gt;
+        		&lt;artifactId&gt;kotlin-maven-plugin&lt;/artifactId&gt;
+        		&lt;version&gt;${kotlin.version}&lt;/version&gt;
+      		&lt;/plugin&gt;
+      		&lt;plugin&gt;
+        		&lt;groupId&gt;org.jooq&lt;/groupId&gt;
+        		&lt;artifactId&gt;jooq-codegen-maven&lt;/artifactId&gt;
+        		&lt;version&gt;${jooq.version}&lt;/version&gt;
+      		&lt;/plugin&gt;
+      		&lt;plugin&gt;
+        		&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        		&lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+        		&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+      		&lt;/plugin&gt;
+          	... ... ...
+    	&lt;/plugins&gt;
+  	&lt;/pluginManagement&gt;
+&lt;/build&gt;
+</code></pre>
+<p>从上面的spring-boot-starter-dependencies的pom.xml中我们可以发现，一部分坐标的版本、依赖管理、插件管理已经定义好，所以我们的SpringBoot工程继承spring-boot-starter-parent后已经具备版本锁定等配置了。所以起步依赖的作用就是进行依赖的传递。</p>
+<p>小结:</p>
+<ol>
+<li>开发SpringBoot程序要继承spring-boot-starter-parent</li>
+<li>spring-boot-starter-parent中定义了若干个依赖管理</li>
+<li>继承parent模块可以避免多个依赖使用相同技术时出现依赖版本冲突</li>
+<li>继承parent的形式也可以采用引入依赖的形式实现效果</li>
+</ol>
+<h1 id="09-入门案例解析starter">09-入门案例解析：starter</h1>
+<ul>
+<li>spring-boot-starter-web.pom<br>
+按住Ctrl点击pom.xml中的spring-boot-starter-web，跳转到了spring-boot-starter-web的pom.xml，xml配置如下（只摘抄了部分重点配置）：</li>
+</ul>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot; xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+  	&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  	&lt;parent&gt;
+    	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    	&lt;artifactId&gt;spring-boot-starters&lt;/artifactId&gt;
+    	&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+  	&lt;/parent&gt;
+  	&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  	&lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+  	&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+  	&lt;name&gt;Spring Boot Web Starter&lt;/name&gt;
+  
+  	&lt;dependencies&gt;
+    	&lt;dependency&gt;
+      		&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+      		&lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;
+      		&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+      		&lt;scope&gt;compile&lt;/scope&gt;
+    	&lt;/dependency&gt;
+    	&lt;dependency&gt;
+      		&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+      		&lt;artifactId&gt;spring-boot-starter-json&lt;/artifactId&gt;
+      		&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+      		&lt;scope&gt;compile&lt;/scope&gt;
+    	&lt;/dependency&gt;
+    	&lt;dependency&gt;
+      		&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+      		&lt;artifactId&gt;spring-boot-starter-tomcat&lt;/artifactId&gt;
+      		&lt;version&gt;2.0.1.RELEASE&lt;/version&gt;
+      		&lt;scope&gt;compile&lt;/scope&gt;
+    	&lt;/dependency&gt;
+    	&lt;dependency&gt;
+      		&lt;groupId&gt;org.hibernate.validator&lt;/groupId&gt;
+      		&lt;artifactId&gt;hibernate-validator&lt;/artifactId&gt;
+      		&lt;version&gt;6.0.9.Final&lt;/version&gt;
+      		&lt;scope&gt;compile&lt;/scope&gt;
+    	&lt;/dependency&gt;
+    	&lt;dependency&gt;
+      		&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+      		&lt;artifactId&gt;spring-web&lt;/artifactId&gt;
+      		&lt;version&gt;5.0.5.RELEASE&lt;/version&gt;
+      		&lt;scope&gt;compile&lt;/scope&gt;
+    	&lt;/dependency&gt;
+    	&lt;dependency&gt;
+      		&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+      		&lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;
+      		&lt;version&gt;5.0.5.RELEASE&lt;/version&gt;
+      		&lt;scope&gt;compile&lt;/scope&gt;
+    	&lt;/dependency&gt;
+  	&lt;/dependencies&gt;
+&lt;/project&gt;
+</code></pre>
+<p>从上面的spring-boot-starter-web的pom.xml中我们可以发现，spring-boot-starter-web就是将web开发要使用的spring-web、spring-webmvc等坐标进行了“打包”，这样我们的工程只要引入spring-boot-starter-web起步依赖的坐标就可以进行web开发了，同样体现了依赖传递的作用。<br>
+<img src="https://img-blog.csdnimg.cn/fa715bd348524022b66380523392144f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+<ul>
+<li>starter<br>
+SpringBoot中常见项目名称，定义了当前项目使用的所有依赖坐标，以达到减少依赖配置的目的</li>
+<li>parent<br>
+所有SpringBoot项目要继承的项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的<br>
+spring-boot-starter-parent各版本间存在着诸多坐标版本不同</li>
+<li>实际开发<br>
+使用任意坐标时，仅书写GAV(groupId, artifactId, version)中的G和A，V由SpringBoot提供，除非SpringBoot未提供对应版本V<br>
+如发生坐标错误，再指定Version（要小心版本冲突）</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>开发SpringBoot程序需要导入坐标时通常导入对应的starter</li>
+<li>每个不同的starter根据功能不同，通常包含多个依赖坐标</li>
+<li>使用starter可以实现快速配置的效果，达到简化配置的目的</li>
+</ol>
+<h1 id="10-入门案例解析引导类">10-入门案例解析：引导类</h1>
+<ul>
+<li>启动方式</li>
+</ul>
+<pre><code class="language-java">@SpringBootApplication
+public class Springboot0101QuickstartApplication {
+
+    public static void main(String[] args) {
+        ConfigurableApplicationContext ctx = SpringApplication.run(Springboot0101QuickstartApplication.class, args);
+        //获取bean对象
+        BookController bean = ctx.getBean(BookController.class);
+        System.out.println(&quot;bean======&gt;&quot; + bean);
+    }
+}
+</code></pre>
+<ul>
+<li>SpringBoot的引导类是Boot工程的执行入口，运行main方法就可以启动项目</li>
+<li>SpringBoot工程运行后初始化Spring容器，扫描引导类所在包加载bean</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>SpringBoot工程提供引导类用来启动程序</li>
+<li>SpringBoot工程启动后创建并初始化Spring容器</li>
+</ol>
+<h1 id="11-入门案例辅助功能">11-入门案例：辅助功能</h1>
+<ul>
+<li>辅助功能 内嵌tomcat<br>
+<img src="https://img-blog.csdnimg.cn/98a74e208b8242dfa4cce4a9dddf466f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+<li>使用maven依赖管理变更起步依赖项</li>
+</ul>
+<pre><code class="language-xml">    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+            &lt;!--web 起步依赖环境中，排除 Tomcat 起步依赖 --&gt;
+            &lt;exclusions&gt;
+                &lt;exclusion&gt;
+                    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                    &lt;artifactId&gt;spring-boot-starter-tomcat&lt;/artifactId&gt;
+                &lt;/exclusion&gt;
+            &lt;/exclusions&gt;
+        &lt;/dependency&gt;
+        &lt;!-- 添加 Jetty 起步依赖，版本由 SpringBoot 的 starter 控制 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-jetty&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+</code></pre>
+<ul>
+<li>Jetty比Tomcat更轻量级，可扩展性更强（相较于Tomcat），谷歌应用引擎（GAE）已经全面切换为Jetty</li>
+<li>内置服务器<br>
+tomcat(默认)	apache出品，粉丝多，应用面广，负载了若干较重的组件<br>
+jetty					更轻量级，负载性能远不及tomcat<br>
+undertow			undertow，负载性能勉强跑赢tomcat</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>内嵌Tomcat服务器是SpringBoot辅助功能之一</li>
+<li>内嵌Tomcat工作原理是将Tomcat服务器作为对象运行，并将该对象交给Spring容器管理</li>
+<li>变更内嵌服务器思想是去除现有服务器，添加全新的服务器</li>
+</ol>
+<h2 id="总结">总结:</h2>
+<ol>
+<li>入门案例（4种方式）</li>
+<li>SpringBoot概述<br>
+parent<br>
+starter<br>
+引导类<br>
+辅助功能（内嵌tomcat）</li>
+</ol>
+<h1 id="12-教你一招复制模块">12-教你一招：复制模块</h1>
+<ul>
+<li>原则<br>
+保留工程基础结构<br>
+抹掉原始工程痕迹<br>
+<img src="https://img-blog.csdnimg.cn/c6454eaca62a4b849a40c9a57b82f06a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>在工作空间中复制对应工程，并修改工程名称</li>
+<li>删除与Idea相关配置文件，仅保留src目录与pom.xml文件</li>
+<li>修改pom.xml文件中的artifactId与新工程/模块名相同</li>
+<li>删除name标签（可选）</li>
+<li>保留备份工程供后期使用</li>
+</ol>
+<h1 id="13-属性配置方式">13-属性配置方式</h1>
+<ul>
+<li>修改服务器端口<br>
+<img src="https://img-blog.csdnimg.cn/e6418b08801140318e071b8775b4898c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+<li>SpringBoot默认配置文件application.properties，通过键值对配置对应属性</li>
+<li>修改配置<br>
+修改服务器端口<pre><code class="language-bash"># 服务器端口配制
+server.port=80
+</code></pre>
+</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>SpringBoot默认配置文件application.properties</li>
+</ol>
+<h1 id="14-基础配置">14-基础配置</h1>
+<ol>
+<li>修改配置<br>
+修改服务器端口<br>
+server.port=80<br>
+关闭运行日志图标（banner）<br>
+spring.main.banner-mode=off<br>
+设置日志相关<br>
+logging.level.root=debug</li>
+</ol>
+<pre><code class="language-bash"># 服务器端口配置
+server.port=80
+
+# 修改banner
+# spring.main.banner-mode=off
+# spring.banner.image.location=logo.png
+
+# 日志
+logging.level.root=info
+</code></pre>
+<ol start="2">
+<li>SpringBoot内置属性查询<br>
+https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties<br>
+官方文档中参考文档第一项：Application Propertie</li>
+</ol>
+<p>小结:</p>
+<ol>
+<li>SpringBoot中导入对应starter后，提供对应配置属性</li>
+<li>书写SpringBoot配置采用关键字+提示形式书写</li>
+</ol>
+<h1 id="15-3种配置文件类型">15-3种配置文件类型</h1>
+<ul>
+<li>配置文件格式<br>
+<img src="https://img-blog.csdnimg.cn/36a410c00f9e42c89f24bdf75b0f48d5.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+<li>SpringBoot提供了多种属性配置方式</li>
+</ul>
+<ol>
+<li>application.properties</li>
+</ol>
+<pre><code class="language-bash">server.port=80
+</code></pre>
+<ol start="2">
+<li>application.yml</li>
+</ol>
+<pre><code class="language-yaml">server:
+  port: 81
+</code></pre>
+<ol start="3">
+<li>application.yaml</li>
+</ol>
+<pre><code class="language-yaml">server:
+  port: 82
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://img-blog.csdnimg.cn/76cb70b654bc412f8f46c7dd19a8d1e0.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<p>小结:</p>
+<ol>
+<li>SpringBoot提供了3种配置文件的格式<br>
+properties（传统格式/默认格式）<br>
+<strong>yml（主流格式）</strong><br>
+yaml</li>
+</ol>
+<h1 id="16-配置文件加载优先级">16-配置文件加载优先级</h1>
+<ul>
+<li>SpringBoot配置文件加载顺序<br>
+application.properties &gt; application.yml &gt; application.yaml</li>
+<li>常用配置文件种类<br>
+application.yml</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>配置文件间的加载优先级<br>
+properties（最高）<br>
+yml<br>
+yaml（最低）</li>
+<li>不同配置文件中相同配置按照加载优先级相互覆盖 (<strong>高优先级配置内容会覆盖低优先级配置内容</strong>)，不同配置文件中不同配置全部保留</li>
+</ol>
+<h1 id="17-教你一招属性提示消失解决方案">17-教你一招：属性提示消失解决方案</h1>
+<p><img src="https://img-blog.csdnimg.cn/cdea13a6b8514c51a842920f8516b73f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/505e5dd390a940aaac58ea8552c53d08.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+小结:</p>
+<ol>
+<li>指定SpringBoot配置文件<br>
+Setting → Project Structure → Facets<br>
+选中对应项目/工程<br>
+Customize Spring Boot<br>
+选择配置文件</li>
+</ol>
+<h1 id="18-yaml数据格式">18-yaml数据格式</h1>
+<h2 id="yaml">yaml</h2>
+<ul>
+<li>YAML（YAML Ain't Markup Language），一种数据序列化格式</li>
+</ul>
+<ol>
+<li>
+<p>优点：</p>
+<ul>
+<li>容易阅读</li>
+<li>容易与脚本语言交互</li>
+<li>以数据为核心，重数据轻格式</li>
+</ul>
+</li>
+<li>
+<p>YAML文件扩展名</p>
+<ul>
+<li>.yml（<strong>主流</strong>）</li>
+<li>.yaml</li>
+</ul>
+</li>
+</ol>
+<h2 id="yaml语法规则">yaml语法规则</h2>
+<h3 id="基本语法">基本语法</h3>
+<ul>
+<li><code>key: value</code> -&gt; <strong>value</strong> 前面一定要有<strong>空格</strong></li>
+<li>大小写<strong>敏感</strong></li>
+<li>属性层级关系使用多行描述，每行结尾使用冒号结束</li>
+<li>使用<strong>缩进</strong>表示层级关系，同层级<strong>左侧对齐</strong>，只允许使用<strong>空格</strong>（不允许使用Tab键）</li>
+<li>属性值前面添加空格（属性名与属性值之间使用冒号+空格作为分隔）</li>
+<li><code>#</code> 表示注释</li>
+<li>核心规则：<strong>数据前面要加空格与冒号隔开</strong></li>
+</ul>
+<pre><code class="language-yaml">server:
+  servlet:
+    context-path: /hello
+  port: 82
+</code></pre>
+<h3 id="数据类型">数据类型</h3>
+<ul>
+<li>字面值表示方式<br>
+<img src="https://img-blog.csdnimg.cn/8adfbf4c27ca407d8567716e62f8e83c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<pre><code class="language-yaml"># 字面值表示方式
+
+boolean: TRUE       #TRUE,true,True,FALSE,false ， False 均可
+float: 3.14         #6.8523015e+5 # 支持科学计数法
+int: 123            #0b1010_0111_0100_1010_1110 # 支持二进制、八进制、十六进制
+# null: ~             # 使用 ~ 表示 null
+string: HelloWorld  # 字符串可以直接书写
+string2: &quot;Hello World&quot;  # 可以使用双引号包裹特殊字符
+date: 2018-02-17        # 日期必须使用 yyyy-MM-dd 格式
+datetime: 2018-02-17T15:02:31+08:00   # 时间和日期之间使用 T 连接，最后使用 + 代表时区
+
+</code></pre>
+<ul>
+<li>数组表示方式：在属性名书写位置的下方使用减号作为数据开始符号，每行书写一个数据，减号与数据间空格分隔<br>
+<img src="https://img-blog.csdnimg.cn/516176cc575049a4b41d3353100f26b1.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<pre><code class="language-yaml">subject:
+  - Java
+  - 前端
+  - 大数据
+
+enterprise:
+  name: zhangsan
+  age: 16
+
+subject2:
+  - Java
+  - 前端
+  - 大数据
+likes: [王者荣耀,刺激战场] # 数组书写缩略格式
+
+
+users: # 对象数组格式
+  - name: Tom
+    age: 4
+
+  - name: Jerry
+    age: 5
+users2: # 对象数组格式二
+  -
+    name: Tom
+    age: 4
+  -
+    name: Jerry
+    age: 5
+
+# 对象数组缩略格式
+users3: [ { name:Tom , age:4 } , { name:Jerry , age:5 } ]
+
+
+</code></pre>
+<p>小结:</p>
+<pre><code class="language-yaml">1. yaml语法规则
+	大小写敏感
+	属性层级关系使用多行描述，每行结尾使用冒号结束
+	使用缩进表示层级关系，同层级左侧对齐，只允许使用空格（不允许使用Tab键）
+	属性值前面添加空格（属性名与属性值之间使用冒号+空格作为分隔）
+	# 表示注释
+2. 注意属性名冒号后面与数据之间有一个空格
+3. 字面值、对象数据格式、数组数据格式（略）
+</code></pre>
+<h1 id="19-读取yaml单一属性数据">19-读取yaml单一属性数据</h1>
+<ul>
+<li>使用@Value读取单个数据，属性名引用方式：${一级属性名.二级属性名……}<br>
+<img src="https://img-blog.csdnimg.cn/18fece154b904361b4504388b8eddf86.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<pre><code class="language-java">    @Value(&quot;${country}&quot;)
+    private String country1;
+
+    @Value(&quot;${user.age}&quot;)
+    private String age1;
+
+    @Value(&quot;${likes[1]}&quot;)
+    private String likes1;
+
+    @Value(&quot;${users[1].name}&quot;)
+    private String name1;
+
+
+    @GetMapping
+    public String getById() {
+        System.out.println(&quot;springboot is running2...&quot;);
+        System.out.println(&quot;country1=&gt;&quot; + country1);
+        System.out.println(&quot;age1=&gt;&quot; + age1);
+        System.out.println(&quot;likes1=&gt;&quot; + likes1);
+        System.out.println(&quot;name1=&gt;&quot; + name1);
+        return &quot;springboot is running2...&quot;;
+    }
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>使用@Value配合SpEL读取单个数据</li>
+<li>如果数据存在多层级，依次书写层级名称即可</li>
+</ol>
+<h1 id="20-yaml文件中的变量引用">20-yaml文件中的变量引用</h1>
+<ul>
+<li>
+<p>在配置文件中可以使用属性名引用方式引用属性<br>
+<img src="https://img-blog.csdnimg.cn/9136f8f352b54c4184ac069a34f49611.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/1d1e401037e442b09005e175ae93ff3a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+</li>
+<li>
+<p>属性值中如果出现转移字符，需要使用双引号包裹<br>
+<img src="https://img-blog.csdnimg.cn/4a17254ad96a454987f0c64223af554a.png" alt="在这里插入图片描述" loading="lazy"></p>
+</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>在配置文件中可以使用${属性名}方式引用属性值</li>
+<li>如果属性中出现特殊字符，可以使用双引号包裹起来作为字符解析</li>
+</ol>
+<h1 id="21-读取yaml全部属性数据">21-读取yaml全部属性数据</h1>
+<ul>
+<li>封装全部数据到Environment对象</li>
+<li>注意 要导这个 包</li>
+<li><strong>import org.springframework.core.env.Environment;</strong><br>
+<img src="https://img-blog.csdnimg.cn/ed4baa57eda34773b40c3a97422a81e9.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/1700017907384046addf32a0e2415f3a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>使用Environment对象封装全部配置信息</li>
+<li>使用@Autowired自动装配数据到Environment对象中</li>
+</ol>
+<h1 id="22-读取yaml引用类型属性数据">22-读取yaml引用类型属性数据</h1>
+<ul>
+<li>自定义对象封装指定数据<br>
+<img src="https://img-blog.csdnimg.cn/2ca987772d7f43f394abf299eacccf3d.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+<li>自定义对象封装指定数据的作用<br>
+<img src="https://img-blog.csdnimg.cn/c3dc819fbfc64fbabeacf0e6536ff9d5.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ul>
+<pre><code class="language-java">//1.定义数据模型封装yaml文件中对应的数据
+//2.定义为spring管控的bean
+@Component
+//3.指定加载的数据
+@ConfigurationProperties(prefix = &quot;datasource&quot;)
+public class MyDataSource {
+
+    private String driver;
+    private String url;
+    private String username;
+    private String password;
+	
+	//省略get/set/tostring 方法
+}    
+</code></pre>
+<pre><code class="language-java">    @Autowired
+    private MyDataSource myDataSource;
+</code></pre>
+<pre><code class="language-yaml"># 创建类，用于封装下面的数据
+# 由spring帮我们去加载数据到对象中，一定要告诉spring加载这组信息
+# 使用时候从spring中直接获取信息使用
+
+datasource:
+  driver: com.mysql.jdbc.Driver
+  url: jdbc:mysql://localhost/springboot_db
+  username: root
+  password: root666123
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>使用@ConfigurationProperties注解绑定配置信息到封装类中</li>
+<li>封装类需要定义为Spring管理的bean，否则无法进行属性注入</li>
+</ol>
+<h1 id="23-springboot整合junit">23-SpringBoot整合JUnit</h1>
+<ul>
+<li>添加Junit的起步依赖 Spring Initializr 创建时自带</li>
+</ul>
+<pre><code class="language-xml">&lt;!--测试的起步依赖--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre>
+<ul>
+<li>SpringBoot整合JUnit</li>
+</ul>
+<pre><code class="language-java">@SpringBootTest
+class Springboot07JunitApplicationTests {
+	@Autowired
+	private BookService bookService;
+	@Test
+	public void testSave(){
+		bookService.save();
+	}
+}
+</code></pre>
+<ul>
+<li>@SpringBootTest<br>
+名称：@SpringBootTest<br>
+类型：测试类注解<br>
+位置：测试类定义上方<br>
+作用：设置JUnit加载的SpringBoot启动类<br>
+范例：</li>
+</ul>
+<pre><code class="language-java">@SpringBootTest
+class Springboot05JUnitApplicationTests {}
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>导入测试对应的starter</li>
+<li>测试类使用@SpringBootTest修饰</li>
+<li>使用自动装配的形式添加要测试的对象</li>
+</ol>
+<h1 id="24-整合junitclasses属性">24-整合JUnit——classes属性</h1>
+<figure data-type="image" tabindex="4"><img src="https://img-blog.csdnimg.cn/a5ff949c6b094e57b7510b1352b53926.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<pre><code class="language-java">@SpringBootTest(classes = Springboot04JunitApplication.class)
+//@ContextConfiguration(classes = Springboot04JunitApplication.class)
+class Springboot04JunitApplicationTests {
+    //1.注入你要测试的对象
+    @Autowired
+    private BookDao bookDao;
+
+    @Test
+    void contextLoads() {
+        //2.执行要测试的对象对应的方法
+        bookDao.save();
+        System.out.println(&quot;two...&quot;);
+    }
+
+}
+</code></pre>
+<p>注意:</p>
+<ul>
+<li>如果测试类在SpringBoot启动类的包或子包中，可以省略启动类的设置，也就是省略classes的设定</li>
+</ul>
+<p>小结:</p>
+<ol>
+<li>测试类如果存在于引导类所在包或子包中无需指定引导类</li>
+<li>测试类如果不存在于引导类所在的包或子包中需要通过 classes 属性指定引导类</li>
+</ol>
+<h1 id="25-springboot整合mybatis">25-SpringBoot整合MyBatis</h1>
+<p>①：创建新模块，选择Spring初始化，并配置模块相关基础信息<br>
+<img src="https://img-blog.csdnimg.cn/a0b3488f2acf47ba84e4ea2aed8ec631.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+②：选择当前模块需要使用的技术集（MyBatis、MySQL）<br>
+<img src="https://img-blog.csdnimg.cn/a22c35c2d7b04746aca34fd386b10c64.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+③：设置数据源参数</p>
+<pre><code class="language-yaml">#DB Configuration:
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/springboot_db
+    username: root
+    password: 123456
+</code></pre>
+<p>④：创建user表<br>
+在 springboot_db 数据库中创建 user 表</p>
+<pre><code class="language-sql">-- ----------------------------
+-- Table structure for `user`
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) DEFAULT NULL,
+  `password` varchar(50) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+INSERT INTO `user` VALUES ('1', 'zhangsan', '123', '张三');
+INSERT INTO `user` VALUES ('2', 'lisi', '123', '李四');
+</code></pre>
+<p>⑤：创建实体Bean</p>
+<pre><code class="language-java">public class User {
+    // 主键
+    private Long id;
+    // 用户名
+    private String username;
+    // 密码
+    private String password;
+    // 姓名
+    private String name;
+  
+    //此处省略getter,setter,toString方法 .. ..
+    
+}
+</code></pre>
+<p>⑥:	定义数据层接口与映射配置</p>
+<pre><code class="language-java">@Mapper
+public interface UserDao {
+
+    @Select(&quot;select * from user&quot;)
+    public List&lt;User&gt; getAll();
+}
+</code></pre>
+<p>⑦：测试类中注入dao接口，测试功能</p>
+<pre><code class="language-java">@SpringBootTest
+class Springboot05MybatisApplicationTests {
+
+    @Autowired
+    private UserDao userDao;
+
+    @Test
+    void contextLoads() {
+        List&lt;User&gt; userList = userDao.getAll();
+        System.out.println(userList);
+    }
+
+}
+</code></pre>
+<p>⑧：运行如下</p>
+<pre><code class="language-bash">[User{id=1, username='zhangsan', password='123', name='张三'}, User{id=2, username='lisi', password='123', name='李四'}]
+</code></pre>
+<p>总结:</p>
+<ol>
+<li>勾选MyBatis技术，也就是导入MyBatis对应的starter</li>
+<li>数据库连接相关信息转换成配置</li>
+<li>数据库SQL映射需要添加@Mapper被容器识别到</li>
+</ol>
+<h1 id="26-springboot整合mybatis常见问题处理">26-SpringBoot整合MyBatis常见问题处理</h1>
+<p>SpringBoot版本低于2.4.3(不含)，Mysql驱动版本大于8.0时，需要在url连接串中配置时区</p>
+<pre><code class="language-yaml">jdbc:mysql://localhost:3306/springboot_db?serverTimezone=UTC
+</code></pre>
+<p>或在MySQL数据库端配置时区解决此问题</p>
+<p>1.MySQL 8.X驱动强制要求设置时区</p>
+<ul>
+<li>修改url，添加serverTimezone设定</li>
+<li>修改MySQL数据库配置（略）</li>
+</ul>
+<p>2.驱动类过时，提醒更换为com.mysql.cj.jdbc.Driver</p>
+<h1 id="27-springboot整合mybatisplus">27-SpringBoot整合MyBatisPlus</h1>
+<p><img src="https://img-blog.csdnimg.cn/c93496840bd44dcb9b754368fc65b8c7.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+①：手动添加SpringBoot整合MyBatis-Plus的坐标，可以通过mvnrepository获取</p>
+<pre><code class="language-xml">   &lt;dependency&gt;
+       &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+       &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+       &lt;version&gt;3.4.3&lt;/version&gt;
+   &lt;/dependency&gt;
+</code></pre>
+<p>注意事项:	由于SpringBoot中未收录MyBatis-Plus的坐标版本，需要指定对应的Version</p>
+<p>②：定义数据层接口与映射配置，继承BaseMapper</p>
+<pre><code class="language-java">@Mapper
+public interface UserDao extends BaseMapper&lt;User&gt; {
+
+}
+</code></pre>
+<p>③：其他同SpringBoot整合MyBatis<br>
+（略）</p>
+<p>④：测试类中注入dao接口，测试功能</p>
+<pre><code class="language-java">@SpringBootTest
+class Springboot06MybatisPlusApplicationTests {
+
+    @Autowired
+    private UserDao userDao;
+
+    @Test
+    void contextLoads() {
+        List&lt;User&gt; users = userDao.selectList(null);
+        System.out.println(users);
+    }
+
+}
+
+</code></pre>
+<p>⑤:	运行如下:</p>
+<pre><code class="language-java">[User{id=1, username='zhangsan', password='123', name='张三'}, User{id=2, username='lisi', password='123', name='李四'}]
+</code></pre>
+<p><strong>注意</strong>:	如果你的数据库表有前缀要在 application.yml 添加如下配制</p>
+<pre><code class="language-yaml">#设置Mp相关的配置
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tbl_
+</code></pre>
+<p>小结:<br>
+1.手工添加MyBatis-Plus对应的starter<br>
+2.数据层接口使用BaseMapper简化开发<br>
+3.需要使用的第三方技术无法通过勾选确定时，需要手工添加坐标</p>
+<h1 id="28-springboot整合druid">28-SpringBoot整合Druid</h1>
+<p><img src="https://img-blog.csdnimg.cn/01f38eb4c4164996a36a68975b2c36da.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+①:	导入Druid对应的starter</p>
+<pre><code class="language-xml">   &lt;dependency&gt;
+       &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+       &lt;artifactId&gt;druid-spring-boot-starter&lt;/artifactId&gt;
+       &lt;version&gt;1.2.6&lt;/version&gt;
+   &lt;/dependency&gt;
+</code></pre>
+<p>②:	指定数据源类型 (这种方式只需导入一个 Druid 的坐标)</p>
+<pre><code class="language-yaml">#DB Configuration:
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/springboot_db?serverTimezone=UTC
+    username: root
+    password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+</code></pre>
+<p><strong>或者 变更Druid的配置方式(推荐) 这种方式需要导入 Druid对应的starter</strong></p>
+<pre><code class="language-yaml">spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/springboot_db?serverTimezone=UTC
+      username: root
+      password: 123456
+</code></pre>
+<p>小结:</p>
+<p>1.整合Druid需要导入Druid对应的starter<br>
+2.根据Druid提供的配置方式进行配置<br>
+3.整合第三方技术通用方式</p>
+<ul>
+<li>导入对应的starter</li>
+<li>根据提供的配置格式，配置非默认值对应的配置项</li>
+</ul>
+<h1 id="29-ssmp整合案例制作分析">29-SSMP整合案例制作分析</h1>
+<h2 id="案例效果演示">案例效果演示:</h2>
+<figure data-type="image" tabindex="5"><img src="https://img-blog.csdnimg.cn/0c7fddc8737f4d0db4c494e7162ba132.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<h2 id="案例实现方案分析与流程解析">案例实现方案分析与流程解析</h2>
+<pre><code class="language-bash">1. 案例实现方案分析
+	实体类开发————使用Lombok快速制作实体类
+	Dao开发————整合MyBatisPlus，制作数据层测试类
+	Service开发————基于MyBatisPlus进行增量开发，制作业务层测试类
+	Controller开发————基于Restful开发，使用PostMan测试接口功能
+	Controller开发————前后端开发协议制作
+	页面开发————基于VUE+ElementUI制作，前后端联调，页面数据处理，页面消息处理
+		列表、新增、修改、删除、分页、查询
+	项目异常处理
+	按条件查询————页面功能调整、Controller修正功能、Service修正功能
+2. SSMP案例制作流程解析
+	先开发基础CRUD功能，做一层测一层
+	调通页面，确认异步提交成功后，制作所有功能
+	添加分页功能与查询功能
+</code></pre>
+<h1 id="30-模块创建">30-模块创建</h1>
+<p><img src="https://img-blog.csdnimg.cn/3a77fb8804f54341bf7bc08d95aac49f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/c15a95bf6dcd4f5b97157dc3106e3009.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_10,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+<p>pom.xml</p>
+<pre><code class="language-xml">   &lt;dependencies&gt;
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+       &lt;/dependency&gt;
+
+       &lt;dependency&gt;
+           &lt;groupId&gt;mysql&lt;/groupId&gt;
+           &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+           &lt;scope&gt;runtime&lt;/scope&gt;
+       &lt;/dependency&gt;
+
+       &lt;dependency&gt;
+           &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+           &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+           &lt;version&gt;3.4.3&lt;/version&gt;
+       &lt;/dependency&gt;
+
+       &lt;dependency&gt;
+           &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+           &lt;artifactId&gt;druid-spring-boot-starter&lt;/artifactId&gt;
+           &lt;version&gt;1.2.6&lt;/version&gt;
+       &lt;/dependency&gt;
+
+       &lt;dependency&gt;
+           &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+           &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+           &lt;scope&gt;test&lt;/scope&gt;
+       &lt;/dependency&gt;
+
+   &lt;/dependencies&gt;
+</code></pre>
+<h2 id="tbl_booksql">tbl_book.sql</h2>
+<pre><code class="language-sql">DROP TABLE IF EXISTS `tbl_book`;
+CREATE TABLE `tbl_book` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(20) DEFAULT NULL,
+  `name` varchar(50) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of tbl_book
+-- ----------------------------
+INSERT INTO `tbl_book` VALUES ('1', '计算机理论', 'Spring实战第5版', 'Spring入门经典教程,深入理解Spring原理技术内幕');
+INSERT INTO `tbl_book` VALUES ('2', '计算机理论', 'Spring 5核心原理与30个类手写实战', '十年沉淀之作，写Spring精华思想');
+INSERT INTO `tbl_book` VALUES ('3', '计算机理论', 'Spring 5设计模式', '深入Spring源码剖析Spring源码中蕴含的10大设计模式');
+INSERT INTO `tbl_book` VALUES ('4', '计算机理论', 'Spring MVC+ MyBatis开发从入门到项目实战', '全方位解析面向Web应用的轻量级框架,带你成为Spring MVC开发高手');
+INSERT INTO `tbl_book` VALUES ('5', '计算机理论', '轻量级Java Web企业应用实战', '源码级剖析Spring框架,适合已掌握Java基础的读者');
+INSERT INTO `tbl_book` VALUES ('6', '计算机理论', 'Java核心技术卷|基础知识(原书第11版)', 'Core Java第11版，Jolt大奖获奖作品，针对Java SE9、10、 11全面更新');
+INSERT INTO `tbl_book` VALUES ('7', '计算机理论', '深入理解Java虚拟机', '5个维度全面剖析JVM,面试知识点全覆盖');
+INSERT INTO `tbl_book` VALUES ('8', '计算机理论', 'Java编程思想(第4版)', 'Java学习必读经典殿堂级著作!赢得了全球程序员的广泛赞誉');
+INSERT INTO `tbl_book` VALUES ('9', '计算机理论', '零基础学Java (全彩版)', '零基础自学编程的入门]图书，由浅入深，详解Java语言的编程思想和核心技术');
+INSERT INTO `tbl_book` VALUES ('10', '市场营销', '直播就该这么做:主播高效沟通实战指南', '李子柒、李佳琦、薇娅成长为网红的秘密都在书中');
+INSERT INTO `tbl_book` VALUES ('11', '市场营销', '直播销讲实战一本通', '和秋叶一起学系列网络营销书籍');
+INSERT INTO `tbl_book` VALUES ('12', '市场营销', '直播带货:淘宝、天猫直播从新手到高手', '一本教你如何玩转直播的书， 10堂课轻松实现带货月入3W+');
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>勾选SpringMVC与MySQL坐标</li>
+<li>修改配置文件为yml格式</li>
+<li>设置端口为80方便访问<pre><code class="language-yaml">server:
+  port: 80
+</code></pre>
+</li>
+</ol>
+<h1 id="31-实体类快速开发lombok">31-实体类快速开发（lombok）</h1>
+<ul>
+<li>Lombok，一个Java类库，提供了一组注解，简化POJO实体类开发</li>
+</ul>
+<pre><code class="language-xml">        &lt;!--lombok--&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<ul>
+<li>lombok版本由SpringBoot提供，无需指定版本</li>
+<li>常用注解：@Data</li>
+</ul>
+<pre><code class="language-java">@Data
+public class Book {
+    private Integer id;
+    private String type;
+    private String name;
+    private String description;
+}
+</code></pre>
+<ul>
+<li>为当前实体类在编译期设置对应的get/set方法，toString方法，hashCode方法，equals方法等</li>
+</ul>
+<p>小结:</p>
+<pre><code class="language-bash">1. 实体类制作
+2. 使用lombok简化开发
+	导入lombok无需指定版本，由SpringBoot提供版本
+	@Data注解
+</code></pre>
+<h1 id="32-数据层标准开发基础crud">32-数据层标准开发（基础CRUD）</h1>
+<ul>
+<li>导入MyBatisPlus与Druid对应的starter</li>
+</ul>
+<pre><code class="language-xml">        &lt;dependency&gt;
+            &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+            &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;3.4.3&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+            &lt;artifactId&gt;druid-spring-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;1.2.6&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<ul>
+<li>配置数据源与MyBatisPlus对应的基础配置（id生成策略使用数据库自增策略）</li>
+</ul>
+<pre><code class="language-yaml"># druid 数据源配制
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/springboot_db?serverTimezone=UTC
+      username: root
+      password: 123456
+
+# mybatis-plus
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tbl_
+      id-type: auto # 主键策略
+</code></pre>
+<ul>
+<li>继承BaseMapper并指定泛型</li>
+</ul>
+<pre><code class="language-java">@Mapper
+public interface BookDao extends BaseMapper&lt;Book&gt; {
+
+    /**
+     * 查询一个
+     * 这是 Mybatis 开发
+     * @param id
+     * @return
+     */
+    @Select(&quot;select * from tbl_book where id = #{id}&quot;)
+    Book getById(Integer id);
+}
+</code></pre>
+<ul>
+<li>制作测试类测试结果</li>
+</ul>
+<pre><code class="language-java">@SpringBootTest
+public class BookDaoTestCase {
+
+    @Autowired
+    private BookDao bookDao;
+
+    @Test
+    void testGetById() {
+        System.out.println(bookDao.getById(1));
+        System.out.println(bookDao.selectById(1));
+    }
+
+    @Test
+    void testSave() {
+        Book book = new Book();
+        book.setType(&quot;测试数据123&quot;);
+        book.setName(&quot;测试数据123&quot;);
+        book.setDescription(&quot;测试数据123&quot;);
+        bookDao.insert(book);
+    }
+
+    @Test
+    void testUpdate() {
+        Book book = new Book();
+        book.setId(13);
+        book.setType(&quot;测试数据asfd&quot;);
+        book.setName(&quot;测试数据123&quot;);
+        book.setDescription(&quot;测试数据123&quot;);
+        bookDao.updateById(book);
+    }
+
+    @Test
+    void testDelete() {
+        bookDao.deleteById(13);
+    }
+
+    @Test
+    void testGetAll() {
+        System.out.println(bookDao.selectList(null));
+    }
+
+    @Test
+    void testGetPage() {
+    }
+
+    @Test
+    void testGetBy() {
+    }
+}
+
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>手工导入starter坐标（2个）</li>
+<li>配置数据源与MyBatisPlus对应的配置</li>
+<li>开发Dao接口（继承BaseMapper）</li>
+<li>制作测试类测试Dao功能是否有效</li>
+</ol>
+<h1 id="33-开启mp运行日志">33-开启MP运行日志</h1>
+<ul>
+<li>为方便调试可以开启MyBatisPlus的日志</li>
+</ul>
+<pre><code class="language-yaml"># mybatis-plus
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tbl_
+      id-type: auto # 主键策略
+  configuration:
+    # 开启MyBatisPlus的日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>使用配置方式开启日志，设置日志输出方式为标准输出<br>
+<img src="https://img-blog.csdnimg.cn/a6d40f4884f945d0a0c28577885cf3d1.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+</ol>
+<h1 id="34-分页">34-分页</h1>
+<ul>
+<li>分页操作需要设定分页对象IPage</li>
+</ul>
+<pre><code class="language-java">    @Test
+    void testGetPage() {
+        IPage page = new Page(1, 5);
+        bookDao.selectPage(page, null);
+    }
+</code></pre>
+<ul>
+<li>
+<p>IPage对象中封装了分页操作中的所有数据<br>
+数据<br>
+当前页码值<br>
+每页数据总量<br>
+最大页码值<br>
+数据总量</p>
+</li>
+<li>
+<p>分页操作是在MyBatisPlus的常规操作基础上增强得到，内部是动态的拼写SQL语句，因此需要增强对应的功能，<br>
+使用MyBatisPlus拦截器实现</p>
+</li>
+</ul>
+<pre><code class="language-java">@Configuration
+public class MybatisPlusConfig {
+
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        //1. 定义 Mp 拦截器
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        //2. 添加具体的拦截器 分页拦截器
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
+        return interceptor;
+    }
+}
+</code></pre>
+<ul>
+<li>测试</li>
+</ul>
+<pre><code class="language-java">    @Test
+    void testGetPage() {
+        IPage page = new Page(1, 5);
+        bookDao.selectPage(page, null);
+        System.out.println(page.getCurrent());
+        System.out.println(page.getSize());
+        System.out.println(page.getPages());
+        System.out.println(page.getTotal());
+        System.out.println(page.getRecords());
+    }
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/ecdb62572ac5446bba2e89be2e2f389f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+小结:</p>
+<ol>
+<li>使用IPage封装分页数据</li>
+<li>分页操作依赖MyBatisPlus分页拦截器实现功能</li>
+<li>借助MyBatisPlus日志查阅执行SQL语句</li>
+</ol>
+<h1 id="35-数据层标准开发条件查询">35-数据层标准开发（条件查询）</h1>
+<ul>
+<li>使用QueryWrapper对象封装查询条件，推荐使用LambdaQueryWrapper对象，所有查询操作封装成方法调用</li>
+</ul>
+<pre><code class="language-java">    @Test
+    void testGetBy2() {
+        LambdaQueryWrapper&lt;Book&gt; lambdaQueryWrapper = new LambdaQueryWrapper&lt;&gt;();
+        lambdaQueryWrapper.like(Book::getName, &quot;Spring&quot;);
+        bookDao.selectList(lambdaQueryWrapper);
+    }
+</code></pre>
+<pre><code class="language-java">    @Test
+    void testGetBy() {
+        QueryWrapper&lt;Book&gt; queryWrapper = new QueryWrapper&lt;&gt;();
+        queryWrapper.like(&quot;name&quot;, &quot;Spring&quot;);
+        bookDao.selectList(queryWrapper);
+    }
+</code></pre>
+<ul>
+<li>支持动态拼写查询条件</li>
+</ul>
+<pre><code class="language-java">    @Test
+    void testGetBy2() {
+        String name = &quot;1&quot;;
+        LambdaQueryWrapper&lt;Book&gt; lambdaQueryWrapper = new LambdaQueryWrapper&lt;&gt;();
+        //if (name != null) lambdaQueryWrapper.like(Book::getName,name);
+        lambdaQueryWrapper.like(Strings.isNotEmpty(name), Book::getName, name);
+        bookDao.selectList(lambdaQueryWrapper);
+    }
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://img-blog.csdnimg.cn/ab95ccf9ac8f4c4baae6c94847a93544.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<p>小结:</p>
+<ol>
+<li>使用QueryWrapper对象封装查询条件</li>
+<li>推荐使用LambdaQueryWrapper对象</li>
+<li>所有查询操作封装成方法调用</li>
+<li>查询条件支持动态条件拼装</li>
+</ol>
+<h1 id="36-业务层标准开发基础crud">36-业务层标准开发（基础CRUD）</h1>
+<ul>
+<li>
+<p>Service层接口定义与数据层接口定义具有较大区别，不要混用<br>
+selectByUserNameAndPassword(String username,String password); 数据层接口<br>
+login(String username,String password); Service层接口</p>
+</li>
+<li>
+<p>接口定义</p>
+</li>
+</ul>
+<pre><code class="language-java">public interface BookService {
+
+    Boolean save(Book book);
+
+    Boolean update(Book book);
+
+    Boolean delete(Integer id);
+
+    Book getById(Integer id);
+
+    List&lt;Book&gt; getAll();
+
+    IPage&lt;Book&gt; getPage(int currentPage,int pageSize);
+}
+</code></pre>
+<ul>
+<li>实现类定义</li>
+</ul>
+<pre><code class="language-java">@Service
+public class BookServiceImpl implements BookService {
+
+    @Autowired
+    private BookDao bookDao;
+
+    @Override
+    public Boolean save(Book book) {
+        return bookDao.insert(book) &gt; 0;
+    }
+
+    @Override
+    public Boolean update(Book book) {
+        return bookDao.updateById(book) &gt; 0;
+    }
+
+    @Override
+    public Boolean delete(Integer id) {
+        return bookDao.deleteById(id) &gt; 0;
+    }
+
+    @Override
+    public Book getById(Integer id) {
+        return bookDao.selectById(id);
+    }
+
+    @Override
+    public List&lt;Book&gt; getAll() {
+        return bookDao.selectList(null);
+    }
+
+    @Override
+    public IPage&lt;Book&gt; getPage(int currentPage, int pageSize) {
+        IPage page = new Page(currentPage, pageSize);
+        bookDao.selectPage(page, null);
+        return page;
+    }
+}
+</code></pre>
+<ul>
+<li>测试类定义</li>
+</ul>
+<pre><code class="language-java">@SpringBootTest
+public class BookServiceTestCase {
+
+    @Autowired
+    private BookService bookService;
+
+    @Test
+    void testGetById() {
+        System.out.println(bookService.getById(4));
+    }
+
+    @Test
+    void testSave() {
+        Book book = new Book();
+        book.setType(&quot;测试数据123&quot;);
+        book.setName(&quot;测试数据123&quot;);
+        book.setDescription(&quot;测试数据123&quot;);
+        bookService.save(book);
+    }
+
+    @Test
+    void testUpdate() {
+        Book book = new Book();
+        book.setId(14);
+        book.setType(&quot;测试数据asfd&quot;);
+        book.setName(&quot;测试数据123&quot;);
+        book.setDescription(&quot;测试数据123&quot;);
+        bookService.update(book);
+    }
+
+    @Test
+    void testDelete() {
+        bookService.delete(14);
+    }
+
+    @Test
+    void testGetAll() {
+        System.out.println(bookService.getAll());
+    }
+
+    @Test
+    void testGetPage() {
+        IPage&lt;Book&gt; page = bookService.getPage(2, 5);
+        System.out.println(page.getCurrent());
+        System.out.println(page.getSize());
+        System.out.println(page.getPages());
+        System.out.println(page.getTotal());
+        System.out.println(page.getRecords());
+    }
+}
+
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>Service接口名称定义成业务名称，并与Dao接口名称进行区分</li>
+<li>制作测试类测试Service功能是否有效</li>
+</ol>
+<h1 id="37-业务层快速开发基于mybatisplus构建">37-业务层快速开发（基于MyBatisPlus构建）</h1>
+<ul>
+<li>快速开发方案<br>
+使用MyBatisPlus提供有业务层通用接口（ISerivce<T>）与业务层通用实现类（ServiceImpl&lt;M,T&gt;）<br>
+在通用类基础上做功能重载或功能追加<br>
+注意重载时不要覆盖原始操作，避免原始提供的功能丢失<br>
+<img src="https://img-blog.csdnimg.cn/3f7f7ce8ae2c4c8ebe42503b61e183fb.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></li>
+<li>接口定义</li>
+</ul>
+<pre><code class="language-java">public interface IBookService extends IService&lt;Book&gt; {
+}
+</code></pre>
+<ul>
+<li>接口追加功能</li>
+</ul>
+<pre><code class="language-java">public interface IBookService extends IService&lt;Book&gt; {
+
+    // 追加的操作与原始操作通过名称区分，功能类似
+    Boolean delete(Integer id);
+
+    Boolean insert(Book book);
+
+    Boolean modify(Book book);
+
+    Book get(Integer id);
+}
+</code></pre>
+<figure data-type="image" tabindex="7"><img src="https://img-blog.csdnimg.cn/6bc84748f4ca42fd829a7ec6a6023dd9.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<ul>
+<li>实现类定义</li>
+</ul>
+<pre><code class="language-java">@Service
+public class BookServiceImpl extends ServiceImpl&lt;BookDao, Book&gt; implements IBookService {
+}
+</code></pre>
+<ul>
+<li>实现类追加功能</li>
+</ul>
+<pre><code class="language-java">@Service
+public class BookServiceImpl extends ServiceImpl&lt;BookDao, Book&gt; implements IBookService {
+
+    @Autowired
+    private BookDao bookDao;
+
+    public Boolean insert(Book book) {
+        return bookDao.insert(book) &gt; 0;
+    }
+
+    public Boolean modify(Book book) {
+        return bookDao.updateById(book) &gt; 0;
+    }
+
+    public Boolean delete(Integer id) {
+        return bookDao.deleteById(id) &gt; 0;
+    }
+
+    public Book get(Integer id) {
+        return bookDao.selectById(id);
+    }
+}
+</code></pre>
+<ul>
+<li>测试类定义</li>
+</ul>
+<pre><code class="language-java">@SpringBootTest
+public class BookServiceTest {
+
+    @Autowired
+    private IBookService bookService;
+
+    @Test
+    void testGetById() {
+        System.out.println(bookService.getById(4));
+    }
+
+    @Test
+    void testSave() {
+        Book book = new Book();
+        book.setType(&quot;测试数据123&quot;);
+        book.setName(&quot;测试数据123&quot;);
+        book.setDescription(&quot;测试数据123&quot;);
+        bookService.save(book);
+    }
+
+    @Test
+    void testUpdate() {
+        Book book = new Book();
+        book.setId(14);
+        book.setType(&quot;===========&quot;);
+        book.setName(&quot;测试数据123&quot;);
+        book.setDescription(&quot;测试数据123&quot;);
+        bookService.updateById(book);
+    }
+
+    @Test
+    void testDelete() {
+        bookService.removeById(14);
+    }
+
+    @Test
+    void testGetAll() {
+        System.out.println(bookService.list());
+    }
+
+    @Test
+    void testGetPage() {
+        IPage&lt;Book&gt; page = new Page&lt;&gt;(2, 5);
+        bookService.page(page);
+        System.out.println(page.getCurrent());
+        System.out.println(page.getSize());
+        System.out.println(page.getPages());
+        System.out.println(page.getTotal());
+        System.out.println(page.getRecords());
+    }
+}
+</code></pre>
+<p>小结：</p>
+<ol>
+<li>使用通用接口（ISerivce<T>）快速开发Service</li>
+<li>使用通用实现类（ServiceImpl&lt;M,T&gt;）快速开发ServiceImpl</li>
+<li>可以在通用接口基础上做功能重载或功能追加</li>
+<li>注意重载时不要覆盖原始操作，避免原始提供的功能丢失</li>
+</ol>
+<h1 id="38-表现层标准开发">38-表现层标准开发</h1>
+<ul>
+<li>基于Restful进行表现层接口开发</li>
+<li>使用Postman测试表现层接口功能</li>
+</ul>
+<p>表现层开发</p>
+<pre><code class="language-java">@RestController
+@RequestMapping(&quot;/books&quot;)
+public class BookController {
+
+    @Autowired
+    private IBookService bookService;
+
+    @GetMapping
+    public List&lt;Book&gt; getAll() {
+        return bookService.list();
+    }
+
+    @PostMapping
+    public Boolean save(@RequestBody Book book) {
+        return bookService.save(book);
+    }
+
+    @PutMapping
+    public Boolean update(@RequestBody Book book) {
+        return bookService.modify(book);
+    }
+
+    @DeleteMapping(&quot;{id}&quot;)
+    public Boolean delete(@PathVariable Integer id) {
+        return bookService.delete(id);
+    }
+
+    @GetMapping(&quot;{id}&quot;)
+    public Book getById(@PathVariable Integer id) {
+        return bookService.getById(id);
+    }
+
+    @GetMapping(&quot;{currentPage}/{pageSize}&quot;)
+    public IPage&lt;Book&gt; getPage(@PathVariable Integer currentPage, @PathVariable int pageSize) {
+        return bookService.getPage(currentPage, pageSize);
+    }
+
+}
+
+</code></pre>
+<p>添加 分页的业务层方法</p>
+<p>IBookService</p>
+<pre><code class="language-java"> IPage&lt;Book&gt; getPage(int currentPage,int pageSize);
+</code></pre>
+<p>BookServiceImpl</p>
+<pre><code class="language-java">    @Override
+    public IPage&lt;Book&gt; getPage(int currentPage, int pageSize) {
+
+        IPage page = new Page(currentPage, pageSize);
+        bookDao.selectPage(page, null);
+
+        return page;
+    }
+</code></pre>
+<p>功能测试<br>
+<img src="https://img-blog.csdnimg.cn/36443892e8d244f1b9d8be0bb82fd0a3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/7effd9c5d6a84ab985ec19967e5a8b85.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/65cc31e45a2145a1a1cebdbd3dce8c6d.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+<p><img src="https://img-blog.csdnimg.cn/ec50a6dde4aa4466a62c7235a32beb4f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+小结:</p>
+<ol>
+<li>基于Restful制作表现层接口<br>
+新增：POST<br>
+删除：DELETE<br>
+修改：PUT<br>
+查询：GET</li>
+<li>接收参数<br>
+实体数据：@RequestBody<br>
+路径变量：@PathVariable</li>
+</ol>
+<h1 id="39-表现层数据一致性处理r对象">39-表现层数据一致性处理（R对象）</h1>
+<ul>
+<li>
+<p>之前的格式<br>
+<img src="https://img-blog.csdnimg.cn/71bd72d8c8264ccabd5f863c15b37c7c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+</li>
+<li>
+<p>增加一个  data 属性，把数据全部封装到 data 里<br>
+<img src="https://img-blog.csdnimg.cn/caf493e364694ab1bdc4f8ce5726de4e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+当数据为 null 可能出现的问题</p>
+<ul>
+<li>查询id不存在的数据，返回 null</li>
+<li>查询过程中抛出异常，catch 中返回 null</li>
+</ul>
+</li>
+<li>
+<p>增加 一个状态属性<br>
+<img src="https://img-blog.csdnimg.cn/8cf4a4669a484a64a7adfacbd1d0487b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></p>
+</li>
+<li>
+<p>设计表现层返回结果的模型类，用于后端与前端进行数据格式统一，也称为<strong>前后端数据协议</strong></p>
+</li>
+</ul>
+<pre><code class="language-java">@Data
+public class R {
+    private Boolean flag;
+    private Object data;
+
+    public R() {
+    }
+
+    /**
+     * 不返回数据的构造方法
+     *
+     * @param flag
+     */
+    public R(Boolean flag) {
+        this.flag = flag;
+    }
+
+    /**
+     * 返回数据的构造方法
+     *
+     * @param flag
+     * @param data
+     */
+    public R(Boolean flag, Object data) {
+        this.flag = flag;
+        this.data = data;
+    }
+}
+</code></pre>
+<ul>
+<li>表现层接口统一返回值类型结果</li>
+</ul>
+<pre><code class="language-java">@RestController
+@RequestMapping(&quot;/books&quot;)
+public class BookController {
+
+    @Autowired
+    private IBookService bookService;
+
+    @GetMapping
+    public R getAll() {
+        return new R(true, bookService.list());
+    }
+
+    @PostMapping
+    public R save(@RequestBody Book book) {
+        return new R(bookService.save(book));
+
+    }
+
+    @PutMapping
+    public R update(@RequestBody Book book) {
+        return new R(bookService.modify(book));
+    }
+
+    @DeleteMapping(&quot;{id}&quot;)
+    public R delete(@PathVariable Integer id) {
+        return new R(bookService.delete(id));
+    }
+
+    @GetMapping(&quot;{id}&quot;)
+    public R getById(@PathVariable Integer id) {
+        return new R(true, bookService.getById(id));
+    }
+
+    @GetMapping(&quot;{currentPage}/{pageSize}&quot;)
+    public R getPage(@PathVariable Integer currentPage, @PathVariable int pageSize) {
+        return new R(true, bookService.getPage(currentPage, pageSize));
+    }
+
+}
+</code></pre>
+<figure data-type="image" tabindex="8"><img src="https://img-blog.csdnimg.cn/83f9d3b203a34ad0b9dc1c1012d0817d.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<p>小结：</p>
+<ol>
+<li>设计统一的返回值结果类型便于前端开发读取数据</li>
+<li>返回值结果类型可以根据需求自行设定，没有固定格式</li>
+<li>返回值结果模型类用于后端与前端进行数据格式统一，也称为前<br>
+后端数据协议</li>
+</ol>
+<h1 id="40-前后端调用axios发送异步请求">40-前后端调用（axios发送异步请求）</h1>
+<h2 id="使用vue的方法时提示报错">使用VUE的方法时提示报错：</h2>
+<p>Method definition shorthands are not supported by current JavaScript version</p>
+<p>表示：该方法定义的缺陷是不支持当前的JavaScript版本，虽然可以程序可以正常运行，但是这个方法会出现红色的波浪线，很不爽</p>
+<p>解决：<br>
+<strong>打开 File -&gt; Settings -&gt; Languages &amp; Frameworks -&gt; Javascript<br>
+把JavaScript版本为ECMAScript 6就可以了</strong></p>
+<ul>
+<li>前后端分离结构设计中页面归属前端服务器</li>
+<li>单体工程中页面放置在resources目录下的static目录中（建议执行clean）</li>
+<li>前端发送异步请求，调用后端接口</li>
+</ul>
+<pre><code class="language-javascript">        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            //调用查询全部数据的操作
+            this.getAll();
+        },
+</code></pre>
+<pre><code class="language-javascript">            //列表
+            getAll() {
+                //发送异步请求
+                axios.get(&quot;/books&quot;).then((res)=&gt;{
+                    console.log(res.data);
+                })
+            },
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/096ebaebba9d433f9d532cdc89566437.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"><br>
+小结：</p>
+<ol>
+<li>单体项目中页面放置在resources/static目录下</li>
+<li>created钩子函数用于初始化页面时发起调用</li>
+<li>页面使用axios发送异步请求获取数据后确认前后端是否联通</li>
+</ol>
+<h1 id="41-列表功能">41-列表功能</h1>
+<ul>
+<li>列表页</li>
+</ul>
+<pre><code class="language-javascript">    //列表
+    getAll() {
+        //发送异步请求
+        axios.get(&quot;/books&quot;).then((res) =&gt; {
+            //console.log(res.data);
+            this.dataList = res.data.data;
+        })
+    },
+</code></pre>
+<figure data-type="image" tabindex="9"><img src="https://img-blog.csdnimg.cn/e5efe8ab609f494baf68f6337f7a0ff3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5pqX5oGL6Iqx6aaZ,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述" loading="lazy"></figure>
+<p>小结：</p>
+<ol>
+<li>将查询数据返回到页面，利用前端数据双向绑定进行数据展示</li>
+</ol>
+<h1 id="42-添加功能">42-添加功能</h1>
+<ul>
+<li>弹出添加窗口</li>
+</ul>
+<pre><code class="language-javascript">// 弹出添加窗口
+handleCreate() {
+	this.dialogFormVisible = true;
+},
+</code></pre>
+<ul>
+<li>清除数据</li>
+</ul>
+<pre><code class="language-javascript">   //重置表单
+   resetForm() {
+       this.formData = {};
+   },
+</code></pre>
+<ul>
+<li>在弹出添加窗口时 清除数据</li>
+</ul>
+<pre><code class="language-javascript">  //弹出添加窗口
+  handleCreate() {
+      this.dialogFormVisible = true;
+      this.resetForm();
+  },
+</code></pre>
+<ul>
+<li>发送添加请求</li>
+</ul>
+<pre><code class="language-javascript">   //添加
+   handleAdd() {
+       axios.post(&quot;/books&quot;, this.formData).then((res) =&gt; {
+           //判断当前操作是否成功
+           if (res.data.flag) {
+               //1.关闭弹层
+               this.dialogFormVisible = false;
+               this.$message.success(&quot;添加成功&quot;);
+           } else {
+               this.$message.error(&quot;添加失败&quot;);
+           }
+       }).finally(() =&gt; {
+           //2.重新加载数据
+           this.getAll();
+       })
+   },
+</code></pre>
+<ul>
+<li>取消添加</li>
+</ul>
+<pre><code class="language-javascript">  //取消
+  cancel() {
+      //1.关闭弹层
+      this.dialogFormVisible = false;
+      //2.提示用户
+      this.$message.info(&quot;当前操作取消&quot;);
+  },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>请求方式使用POST调用后台对应操作</li>
+<li>添加操作结束后动态刷新页面加载数据</li>
+<li>根据操作结果不同，显示对应的提示信息</li>
+<li>弹出添加Div时清除表单数据</li>
+</ol>
+<h1 id="43-删除功能">43-删除功能</h1>
+<ul>
+<li>删除</li>
+</ul>
+<pre><code class="language-javascript">  // 删除
+  handleDelete(row) {
+      axios.delete(&quot;/books/&quot; + row.id).then((res) =&gt; {
+          if (res.data.flag) {
+              this.$message.success(&quot;删除成功&quot;);
+          } else {
+              this.$message.error(&quot;删除失败&quot;);
+          }
+      }).finally(() =&gt; {
+          this.getAll();
+      });
+  }
+</code></pre>
+<ul>
+<li>加入确认删除对话框</li>
+</ul>
+<pre><code class="language-javascript">   // 删除
+   handleDelete(row) {
+       //1. 弹出提示框
+       this.$confirm(&quot;些操作永久删除当前信息,是否继续?&quot;, &quot;提示&quot;, {type: &quot;info&quot;}).then(() =&gt; {
+           //2. 做删除业务
+           axios.delete(&quot;/books/&quot; + row.id).then((res) =&gt; {
+               //判断当前操作是否成功
+               if (res.data.flag) {
+                   this.$message.success(&quot;删除成功&quot;);
+               } else {
+                   this.$message.error(&quot;删除失败&quot;);
+               }
+           }).finally(() =&gt; {
+               //2.重新加载数据
+               this.getAll();
+           })
+       }).catch(() =&gt; {
+           //3. 取消删除
+           this.$message.info(&quot;取消操作&quot;);
+       });
+
+   },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>请求方式使用Delete调用后台对应操作</li>
+<li>删除操作需要传递当前行数据对应的id值到后台</li>
+<li>删除操作结束后动态刷新页面加载数据</li>
+<li>根据操作结果不同，显示对应的提示信息</li>
+<li>删除操作前弹出提示框避免误操作</li>
+</ol>
+<h1 id="44修改功能加载数据">44修改功能（加载数据）</h1>
+<ul>
+<li>弹出修改窗口</li>
+</ul>
+<pre><code class="language-javascript">  //弹出编辑窗口
+  handleUpdate(row) {
+      axios.get(&quot;/books/&quot; + row.id).then((res) =&gt; {
+          if (res.data.flag &amp;&amp; res.data.data != null) {
+              // 展示弹层，加载数据
+              this.dialogFormVisible4Edit = true;
+              this.formData = res.data.data;
+          } else {
+              this.$message.error(&quot;数据同步失败，自动刷新&quot;);
+          }
+      }).finally(() =&gt; {
+          //重新加载数据
+          this.getAll();
+      });
+  },
+</code></pre>
+<ul>
+<li>删除消息维护</li>
+</ul>
+<pre><code class="language-javascript">   // 删除
+   handleDelete(row) {
+       //1. 弹出提示框
+       this.$confirm(&quot;些操作永久删除当前信息,是否继续?&quot;, &quot;提示&quot;, {type: &quot;info&quot;}).then(() =&gt; {
+           //2. 做删除业务
+           axios.delete(&quot;/books/&quot; + row.id).then((res) =&gt; {
+               //判断当前操作是否成功
+               if (res.data.flag) {
+                   this.$message.success(&quot;删除成功&quot;);
+               } else {
+                   this.$message.error(&quot;数据同步失败，自动刷新&quot;);
+               }
+           }).finally(() =&gt; {
+               //2.重新加载数据
+               this.getAll();
+           });
+       }).catch(() =&gt; {
+           //3. 取消删除
+           this.$message.info(&quot;取消操作&quot;);
+       });
+
+   },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>加载要修改数据通过传递当前行数据对应的id值到后台查询数据</li>
+<li>利用前端数据双向绑定将查询到的数据进行回显</li>
+</ol>
+<h1 id="45-修改功能">45-修改功能</h1>
+<ul>
+<li>修改</li>
+</ul>
+<pre><code class="language-javascript">  //修改
+  handleEdit() {
+      axios.put(&quot;/books&quot;, this.formData).then((res) =&gt; {
+          //判断当前操作是否成功
+          if (res.data.flag) {
+              //1.关闭弹层
+              this.dialogFormVisible4Edit = false;
+              this.$message.success(&quot;修改成功&quot;);
+          } else {
+              this.$message.error(&quot;修改失败&quot;);
+          }
+      }).finally(() =&gt; {
+          //2.重新加载数据
+          this.getAll();
+      });
+  },
+</code></pre>
+<ul>
+<li>取消添加和修改</li>
+</ul>
+<pre><code class="language-javascript">  //取消
+  cancel() {
+      //1.关闭弹层
+      this.dialogFormVisible = false;
+      this.dialogFormVisible4Edit = false;
+      //2.提示用户
+      this.$message.info(&quot;当前操作取消&quot;);
+  },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>请求方式使用PUT调用后台对应操作</li>
+<li>修改操作结束后动态刷新页面加载数据（同新增）</li>
+<li>根据操作结果不同，显示对应的提示信息（同新增）</li>
+</ol>
+<h1 id="46-异常消息处理">46-异常消息处理</h1>
+<ul>
+<li>业务操作成功或失败返回数据格式</li>
+</ul>
+<pre><code class="language-javascript">{
+    &quot;flag&quot;: true,
+    &quot;data&quot;: null
+}
+
+{
+    &quot;flag&quot;: false,
+    &quot;data&quot;: null
+}
+</code></pre>
+<ul>
+<li>后台代码BUG导致数据格式不统一性</li>
+</ul>
+<pre><code class="language-javascript">{
+    &quot;timestamp&quot;: &quot;2021-11-07T12:44:29.343+00:00&quot;,
+    &quot;status&quot;: 500,
+    &quot;error&quot;: &quot;Internal Server Error&quot;,
+    &quot;path&quot;: &quot;/books&quot;
+}
+</code></pre>
+<ul>
+<li>对异常进行统一处理，出现异常后，返回指定信息</li>
+</ul>
+<pre><code class="language-java">@RestControllerAdvice
+public class ProjectExceptionAdvice {
+
+    //拦截所有的异常信息
+    @ExceptionHandler(Exception.class)
+    public R doException(Exception ex) {
+        // 记录日志
+        // 发送消息给运维
+        // 发送邮件给开发人员 ,ex 对象发送给开发人员
+        ex.printStackTrace();
+        return new R(false, null, &quot;系统错误，请稍后再试！&quot;);
+    }
+}
+</code></pre>
+<ul>
+<li>修改表现层返回结果的模型类，封装出现异常后对应的信息<br>
+flag：false<br>
+Data: null<br>
+消息(msg): 要显示信息</li>
+</ul>
+<pre><code class="language-java">@Data
+public class R{
+	private Boolean flag;
+	private Object data;
+	private String msg;
+	public R(Boolean flag,Object data,String msg){
+		this.flag = flag;
+		this.data = data;
+		this.msg = msg;
+	}
+}
+</code></pre>
+<ul>
+<li>页面消息处理，没有传递消息加载默认消息，传递消息后加载指定消息</li>
+</ul>
+<pre><code class="language-javascript">  //添加
+  handleAdd() {
+      axios.post(&quot;/books&quot;, this.formData).then((res) =&gt; {
+          //判断当前操作是否成功
+          if (res.data.flag) {
+              //1.关闭弹层
+              this.dialogFormVisible = false;
+              this.$message.success(&quot;添加成功&quot;);
+          } else {
+              this.$message.error(res.data.msg);
+          }
+      }).finally(() =&gt; {
+          //2.重新加载数据
+          this.getAll();
+      })
+  },
+</code></pre>
+<ul>
+<li>可以在表现层Controller中进行消息统一处理</li>
+</ul>
+<pre><code class="language-java">    @PostMapping
+    public R save(@RequestBody Book book) throws IOException {
+		//if (book.getName().equals(&quot;123&quot;)) throw new IOException();
+        boolean flag = bookService.save(book);
+        return new R(flag, flag ? &quot;添加成功^_^&quot; : &quot;添加失败-_-!&quot;);
+    }
+</code></pre>
+<ul>
+<li>页面消息处理</li>
+</ul>
+<pre><code class="language-javascript">  //添加
+  handleAdd() {
+      axios.post(&quot;/books&quot;, this.formData).then((res) =&gt; {
+          //判断当前操作是否成功
+          if (res.data.flag) {
+              //1.关闭弹层
+              this.dialogFormVisible = false;
+              this.$message.success(res.data.msg);
+          } else {
+              this.$message.error(res.data.msg);
+          }
+      }).finally(() =&gt; {
+          //2.重新加载数据
+          this.getAll();
+      })
+  },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>使用注解@RestControllerAdvice定义SpringMVC异常处理器用来处理异常的</li>
+<li>异常处理器必须被扫描加载，否则无法生效</li>
+<li>表现层返回结果的模型类中添加消息属性用来传递消息到页面</li>
+</ol>
+<h1 id="47-分页">47-分页</h1>
+<ul>
+<li>页面使用 el 分页组件添加分页功能</li>
+</ul>
+<pre><code class="language-html">
+  &lt;!--分页组件--&gt;
+  &lt;div class=&quot;pagination-container&quot;&gt;
+
+      &lt;el-pagination
+              class=&quot;pagiantion&quot;
+
+              @current-change=&quot;handleCurrentChange&quot;
+
+              :current-page=&quot;pagination.currentPage&quot;
+
+              :page-size=&quot;pagination.pageSize&quot;
+
+              layout=&quot;total, prev, pager, next, jumper&quot;
+
+              :total=&quot;pagination.total&quot;&gt;
+
+      &lt;/el-pagination&gt;
+
+  &lt;/div&gt;
+</code></pre>
+<ul>
+<li>定义分页组件需要使用的数据并将数据绑定到分页组件</li>
+</ul>
+<pre><code class="language-javascript">data: {
+    pagination: { // 分页相关模型数据
+        currentPage: 1, // 当前页码
+        pageSize: 10,	// 每页显示的记录数
+        total: 0,		// 总记录数
+    }
+},
+</code></pre>
+<ul>
+<li>替换查询全部功能为分页功能</li>
+</ul>
+<pre><code class="language-javascript">getAll() {
+    axios.get(&quot;/books/&quot; + this.pagination.currentPage + &quot;/&quot; + this.pagination.pageSize).then((res) =&gt; {});
+},
+</code></pre>
+<ul>
+<li>分页查询<br>
+使用路径参数传递分页数据或封装对象传递数据</li>
+</ul>
+<pre><code class="language-java">    @GetMapping(&quot;{currentPage}/{pageSize}&quot;)
+    public R getPage(@PathVariable Integer currentPage, @PathVariable int pageSize) {
+        return new R(true, bookService.getPage(currentPage, pageSize));
+    }
+</code></pre>
+<ul>
+<li>加载分页数据</li>
+</ul>
+<pre><code class="language-javascript">     //分页查询
+     getAll() {
+         //发送异步请求
+         axios.get(&quot;/books/&quot; + this.pagination.currentPage + &quot;/&quot; + this.pagination.pageSize).then((res) =&gt; {
+             //console.log(res.data);
+             this.pagination.currentPage = res.data.data.current;
+             this.pagination.pageSize = res.data.data.size;
+             this.pagination.total = res.data.data.total;
+
+             this.dataList = res.data.data.records;
+         })
+     },
+</code></pre>
+<ul>
+<li>分页页码值切换</li>
+</ul>
+<pre><code class="language-javascript">   //切换页码
+   handleCurrentChange(currentPage) {
+       //修改页码值为当前选中的页码值
+       this.pagination.currentPage = currentPage;
+       //执行查询
+       this.getAll();
+   },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>使用el分页组件</li>
+<li>定义分页组件绑定的数据模型</li>
+<li>异步调用获取分页数据</li>
+<li>分页数据页面回显</li>
+</ol>
+<h1 id="48-分页功能维护删除bug">48-分页功能维护（删除BUG）</h1>
+<ul>
+<li>对查询结果进行校验，如果当前页码值大于最大页码值，使用最大页码值作为当前页码值重新查询</li>
+</ul>
+<pre><code class="language-java">    @GetMapping(&quot;{currentPage}/{pageSize}&quot;)
+    public R getPage(@PathVariable Integer currentPage, @PathVariable int pageSize) {
+        IPage&lt;Book&gt; page = bookService.getPage(currentPage, pageSize);
+        // 如果当前页码值大于了总页码值，那么重新执行查询操作，使用最大页码值作为当前页码值
+        if (currentPage &gt; page.getPages()) {
+            page = bookService.getPage((int) page.getPages(), pageSize);
+        }
+        return new R(true, page);
+    }
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>基于业务需求维护删除功能</li>
+</ol>
+<h1 id="49-条件查询">49-条件查询</h1>
+<ul>
+<li>查询条件数据封装<br>
+单独封装<br>
+与分页操作混合封装</li>
+</ul>
+<pre><code class="language-javascript">   pagination: {//分页相关模型数据
+       currentPage: 1,//当前页码
+       pageSize: 10,//每页显示的记录数
+       total: 0,//总记录数
+       type: &quot;&quot;,
+       name: &quot;&quot;,
+       description: &quot;&quot;
+   }
+</code></pre>
+<ul>
+<li>页面数据模型绑定</li>
+</ul>
+<pre><code class="language-html">&lt;div class=&quot;filter-container&quot;&gt;
+    &lt;el-input placeholder=&quot;图书类别&quot; v-model=&quot;pagination.type&quot; class=&quot;filter-item&quot; /&gt;
+    &lt;el-input placeholder=&quot;图书名称&quot; v-model=&quot;pagination.name&quot; class=&quot;filter-item&quot; /&gt;
+    &lt;el-input placeholder=&quot;图书描述&quot; v-model=&quot;pagination.description&quot; class=&quot;filter-item&quot; /&gt;
+    &lt;el-button @click=&quot;getAll()&quot; class=&quot;dalfBut&quot;&gt;查询&lt;/el-button&gt;
+    &lt;el-button type=&quot;primary&quot; class=&quot;butT&quot; @click=&quot;handleCreate()&quot;&gt;新建&lt;/el-button&gt;
+&lt;/div&gt;
+</code></pre>
+<ul>
+<li>组织数据成为get请求发送的数据</li>
+</ul>
+<pre><code class="language-javascript">   //分页查询
+   getAll() {
+       console.log(this.pagination.type);
+
+       //  /books/1/10?type=???&amp;name=???&amp;decription=?? ;
+       //1. 获取查询条件 , 拼接查询条件
+       param = &quot;?name=&quot; + this.pagination.name;
+       param += &quot;&amp;type=&quot; + this.pagination.type;
+       param += &quot;&amp;description=&quot; + this.pagination.description;
+       //console.log(&quot;-----------------&quot; + param);
+
+       //发送异步请求
+       axios.get(&quot;/books/&quot; + this.pagination.currentPage + &quot;/&quot; + this.pagination.pageSize + param).then((res) =&gt; {
+           //console.log(res.data);
+           this.pagination.currentPage = res.data.data.current;
+           this.pagination.pageSize = res.data.data.size;
+           this.pagination.total = res.data.data.total;
+
+           this.dataList = res.data.data.records;
+       })
+   },
+</code></pre>
+<ul>
+<li>条件参数组织可以通过条件判定书写的更简洁</li>
+<li>Controller接收参数</li>
+</ul>
+<pre><code class="language-java">@GetMapping(&quot;{currentPage}/{pageSize}&quot;)
+public R getAll(@PathVariable int currentPage,@PathVariable int pageSize,Book book) {
+	System.out.println(&quot;参数=====&gt;&quot;+book);
+	IPage&lt;Book&gt; pageBook = bookService.getPage(currentPage,pageSize);
+	return new R(null != pageBook ,pageBook);
+}
+</code></pre>
+<ul>
+<li>业务层接口功能开发</li>
+</ul>
+<pre><code class="language-java">     /**
+   * 分页的条件查询
+   *
+   * @param currentPage
+   * @param pageSize
+   * @param book
+   * @return
+   */
+  IPage&lt;Book&gt; getPage(Integer currentPage, int pageSize, Book book);
+</code></pre>
+<ul>
+<li>业务层接口实现类功能开发</li>
+</ul>
+<pre><code class="language-java">    @Override
+    public IPage&lt;Book&gt; getPage(Integer currentPage, int pageSize, Book book) {
+
+        LambdaQueryWrapper&lt;Book&gt; lambdaQueryWrapper = new LambdaQueryWrapper&lt;&gt;();
+
+        lambdaQueryWrapper.like(Strings.isNotEmpty(book.getType()), Book::getType, book.getType());
+        lambdaQueryWrapper.like(Strings.isNotEmpty(book.getName()), Book::getName, book.getName());
+        lambdaQueryWrapper.like(Strings.isNotEmpty(book.getDescription()), Book::getDescription, book.getDescription());
+
+        IPage page = new Page(currentPage, pageSize);
+        bookDao.selectPage(page, lambdaQueryWrapper);
+
+        return page;
+    }
+</code></pre>
+<ul>
+<li>Controller调用业务层分页条件查询接口</li>
+</ul>
+<pre><code class="language-java">    @GetMapping(&quot;{currentPage}/{pageSize}&quot;)
+    public R getPage(@PathVariable Integer currentPage, @PathVariable int pageSize, Book book) {
+
+        // System.out.println(&quot;book=&gt;&quot; + book);
+
+        IPage&lt;Book&gt; page = bookService.getPage(currentPage, pageSize, book);
+        // 如果当前页码值大于了总页码值，那么重新执行查询操作，使用最大页码值作为当前页码值
+        if (currentPage &gt; page.getPages()) {
+            page = bookService.getPage((int) page.getPages(), pageSize, book);
+        }
+        return new R(true, page);
+    }
+</code></pre>
+<ul>
+<li>页面回显数据</li>
+</ul>
+<pre><code class="language-javascript">   //分页查询
+   getAll() {
+       console.log(this.pagination.type);
+
+       //  /books/1/10?type=???&amp;name=???&amp;decription=?? ;
+       //1. 获取查询条件 , 拼接查询条件
+       param = &quot;?name=&quot; + this.pagination.name;
+       param += &quot;&amp;type=&quot; + this.pagination.type;
+       param += &quot;&amp;description=&quot; + this.pagination.description;
+       //console.log(&quot;-----------------&quot; + param);
+
+       //发送异步请求
+       axios.get(&quot;/books/&quot; + this.pagination.currentPage + &quot;/&quot; + this.pagination.pageSize + param).then((res) =&gt; {
+           //console.log(res.data);
+           this.pagination.currentPage = res.data.data.current;
+           this.pagination.pageSize = res.data.data.size;
+           this.pagination.total = res.data.data.total;
+
+           this.dataList = res.data.data.records;
+       })
+   },
+</code></pre>
+<p>小结:</p>
+<ol>
+<li>定义查询条件数据模型（当前封装到分页数据模型中）</li>
+<li>异步调用分页功能并通过请求参数传递数据到后台</li>
+</ol>
+<h1 id="50-基础篇完结">50-基础篇完结</h1>
+<h2 id="基于springboot的ssmp整合案例">基于SpringBoot的SSMP整合案例</h2>
+<ol>
+<li>pom.xml<br>
+配置起步依赖</li>
+<li>application.yml<br>
+设置数据源、端口、框架技术相关配置等</li>
+<li>dao<br>
+继承BaseMapper、设置@Mapper</li>
+<li>dao测试类</li>
+<li>service<br>
+调用数据层接口或MyBatis-Plus提供的接口快速开发</li>
+<li>service测试类</li>
+<li>controller<br>
+基于Restful开发，使用Postman测试跑通功能</li>
+<li>页面<br>
+放置在resources目录下的static目录中</li>
+</ol>
+<p>总结:</p>
+<ol>
+<li>整合JUint</li>
+<li>整合MyBatis</li>
+<li>整合MyBatis-Plus</li>
+<li>整合Druid</li>
+<li>基于SpringBoot的SSMP整合案例</li>
+</ol>
+]]></content>
+    </entry>
+</feed>

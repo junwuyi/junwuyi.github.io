@@ -1,0 +1,1462 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>性能优化之MySQL优化 - 君无意博客</title>
+<link rel="shortcut icon" href="https://junwuyi.github.io/favicon.ico">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.7.2/animate.min.css">
+<link rel="stylesheet" href="https://junwuyi.github.io/media/css/tailwind.css">
+<link rel="stylesheet" href="https://junwuyi.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="性能优化之MySQL优化 - 君无意博客 - Atom Feed" href="https://junwuyi.github.io/atom.xml">
+
+    
+
+  <meta name="description" content="
+第1章 数据库优化简介
+
+数据库优化的目的
+数据库优化的方式
+
+
+第2章 SQL语句优化
+
+SELECT语句 - 语法顺序：
+SELECT语句 - 执行顺序：
+2-1 数据准备
+2-2 MySQL慢查日志的开启方式和存储格式
+2-3 My..." />
+  <meta property="og:title" content="性能优化之MySQL优化 - 君无意博客">
+  <meta property="og:description" content="
+第1章 数据库优化简介
+
+数据库优化的目的
+数据库优化的方式
+
+
+第2章 SQL语句优化
+
+SELECT语句 - 语法顺序：
+SELECT语句 - 执行顺序：
+2-1 数据准备
+2-2 MySQL慢查日志的开启方式和存储格式
+2-3 My..." />
+  <meta property="og:type" content="articles">
+  <meta property="og:url" content="https://junwuyi.github.io/LqgaEzXRC/" />
+  <meta property="og:image" content="https://junwuyi.github.io/images/avatar.png">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:width" content="1200">
+  <meta name="twitter:title" content="性能优化之MySQL优化 - 君无意博客">
+  <meta name="twitter:description" content="
+第1章 数据库优化简介
+
+数据库优化的目的
+数据库优化的方式
+
+
+第2章 SQL语句优化
+
+SELECT语句 - 语法顺序：
+SELECT语句 - 执行顺序：
+2-1 数据准备
+2-2 MySQL慢查日志的开启方式和存储格式
+2-3 My...">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://junwuyi.github.io/LqgaEzXRC/">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+ 
+  
+    <link rel="stylesheet" href="https://junwuyi.github.io/media/css/prism-atom-dark.css">
+  
+
+  
+</head>
+
+<body>
+  <div class="antialiased flex flex-col min-h-screen" id="app">
+    <a href="https://junwuyi.github.io" class="fixed top-0 left-0 mt-4 bg-black text-white dark:text-gray-700 dark:bg-yellow-50 dark:hover:bg-black dark:hover:text-white inline-flex p-2 pl-8 hover:text-gray-700 hover:bg-yellow-50 font-bold z-10 transition-fast animated fadeInLeft">
+      君无意博客
+    </a>
+    <div class="max-w-4xl w-full mx-auto">
+      <div class="shadow-box bg-white dark:bg-gray-600 rounded-lg pt-32 md:pt-64 px-4 md:px-8 pb-8 animated fadeIn mb-8">
+        <h1 class="text-5xl font-semibold leading-normal pb-8 mb-8 border-b-8 border-gray-700">
+          性能优化之MySQL优化
+        </h1>
+        
+        <div class="mb-8 flex flex-wrap">
+          <div class="text-gray-400 text-sm mr-4">2021-11-15 · 40 min read</div>
+          
+        </div>
+        <div class="markdown mb-8" v-pre>
+          <p><ul class="markdownIt-TOC">
+<li><a href="#%E7%AC%AC1%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%AE%80%E4%BB%8B">第1章 数据库优化简介</a>
+<ul>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%9A%84%E7%9B%AE%E7%9A%84">数据库优化的目的</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F">数据库优化的方式</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC2%E7%AB%A0-sql%E8%AF%AD%E5%8F%A5%E4%BC%98%E5%8C%96">第2章 SQL语句优化</a>
+<ul>
+<li><a href="#select%E8%AF%AD%E5%8F%A5-%E8%AF%AD%E6%B3%95%E9%A1%BA%E5%BA%8F">SELECT语句 - 语法顺序：</a></li>
+<li><a href="#select%E8%AF%AD%E5%8F%A5-%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F">SELECT语句 - 执行顺序：</a></li>
+<li><a href="#2-1-%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87">2-1 数据准备</a></li>
+<li><a href="#2-2-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E7%9A%84%E5%BC%80%E5%90%AF%E6%96%B9%E5%BC%8F%E5%92%8C%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F">2-2 MySQL慢查日志的开启方式和存储格式</a></li>
+<li><a href="#2-3-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmysqldumpslow">2-3 MySQL慢查日志分析工具之mysqldumpslow</a>
+<ul>
+<li><a href="#windows%E4%B8%8B%E4%BD%BF%E7%94%A8">Windows下使用</a></li>
+<li><a href="#linux-%E4%B8%8B%E4%BD%BF%E7%94%A8">Linux 下使用</a></li>
+</ul>
+</li>
+<li><a href="#2-4-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bpt-query-digest">2-4 MySQL慢查日志分析工具之pt-query-digest</a>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85pt-query-digest">安装pt-query-digest</a></li>
+<li><a href="#%E6%88%96%E8%80%85%E5%AE%89%E8%A3%85-percona-toolkit-%E5%A5%97%E4%BB%B6">或者安装 percona-toolkit 套件</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8-pt-query-digest">使用 pt-query-digest</a>
+<ul>
+<li><a href="#pt-query-digest%E8%AF%AD%E6%B3%95%E5%8F%8A%E9%87%8D%E8%A6%81%E9%80%89%E9%A1%B9">pt-query-digest语法及重要选项</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%86%E6%9E%90pt-query-digest%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C">分析pt-query-digest输出结果</a></li>
+</ul>
+</li>
+<li><a href="#2-5-%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%8F%91%E7%8E%B0%E6%9C%89%E9%97%AE%E9%A2%98%E7%9A%84sql">2-5 如何通过慢查日志发现有问题的SQL</a></li>
+<li><a href="#2-6-%E9%80%9A%E8%BF%87explain%E6%9F%A5%E8%AF%A2%E5%92%8C%E5%88%86%E6%9E%90sql%E7%9A%84%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92">2-6 通过explain查询和分析SQL的执行计划</a></li>
+<li><a href="#2-7-count%E5%92%8Cmax%E7%9A%84%E4%BC%98%E5%8C%96">2-7 Count()和Max()的优化</a>
+<ul>
+<li><a href="#1%E5%AF%B9max%E6%9F%A5%E8%AF%A2%E5%8F%AF%E4%BB%A5%E4%B8%BA%E8%A1%A8%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95">1.对max()查询，可以为表创建索引</a></li>
+<li><a href="#2count%E5%AF%B9%E5%A4%9A%E4%B8%AA%E5%85%B3%E9%94%AE%E5%AD%97%E8%BF%9B%E8%A1%8C%E6%9F%A5%E8%AF%A2">2.count()对多个关键字进行查询</a></li>
+</ul>
+</li>
+<li><a href="#2-8-%E5%AD%90%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E5%8C%96">2-8 子查询的优化</a></li>
+<li><a href="#2-9-group-by%E7%9A%84%E4%BC%98%E5%8C%96">2-9 group by的优化</a></li>
+<li><a href="#2-10-limit%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E5%8C%96">2-10 Limit查询的优化</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC3%E7%AB%A0-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96">第3章 索引优化</a>
+<ul>
+<li><a href="#3-1-%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E5%88%97%E5%BB%BA%E7%AB%8B%E7%B4%A2%E5%BC%95">3-1 如何选择合适的列建立索引</a>
+<ul>
+<li><a href="#%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E7%B4%A2%E5%BC%95%E5%88%97">选择合适的索引列</a></li>
+<li><a href="#%E7%A6%BB%E6%95%A3%E5%BA%A6%E7%9A%84%E5%88%A4%E6%96%AD">离散度的判断</a></li>
+</ul>
+</li>
+<li><a href="#3-2-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96sql%E7%9A%84%E6%96%B9%E6%B3%95">3-2 索引优化SQL的方法</a>
+<ul>
+<li><a href="#%E9%87%8D%E5%A4%8D%E5%8F%8A%E5%86%97%E4%BD%99%E7%B4%A2%E5%BC%95">重复及冗余索引</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%8F%8A%E5%86%97%E4%BD%99%E7%B4%A2%E5%BC%95">查找重复及冗余索引</a></li>
+</ul>
+</li>
+<li><a href="#3-3-%E7%B4%A2%E5%BC%95%E7%BB%B4%E6%8A%A4%E7%9A%84%E6%96%B9%E6%B3%95">3-3 索引维护的方法</a></li>
+<li><a href="#3-4-%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E6%83%85%E5%86%B5">3-4 索引失效的情况</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC4%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E4%BC%98%E5%8C%96">第4章 数据库结构优化</a>
+<ul>
+<li><a href="#4-1-%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">4-1 选择合适的数据类型</a>
+<ul>
+<li><a href="#%E4%BE%8B%E5%AD%901-%E7%94%A8int%E5%AD%98%E5%82%A8%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4">例子1、用Int存储日期时间</a></li>
+<li><a href="#%E4%BE%8B%E5%AD%902-%E5%AD%98%E5%82%A8ip%E5%9C%B0%E5%9D%80bigint">例子2、存储IP地址——bigInt</a></li>
+</ul>
+</li>
+<li><a href="#4-2-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E8%8C%83%E5%BC%8F%E5%8C%96%E4%BC%98%E5%8C%96">4-2 数据库表的范式化优化</a></li>
+<li><a href="#4-3-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%8F%8D%E8%8C%83%E5%BC%8F%E5%8C%96%E4%BC%98%E5%8C%96">4-3 数据库表的反范式化优化</a></li>
+<li><a href="#4-4-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86">4-4 数据库表的垂直拆分</a></li>
+<li><a href="#4-5-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86">4-5 数据库表的水平拆分</a>
+<ul>
+<li><a href="#%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86%E4%B8%8E%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86%E5%8C%BA%E5%88%AB">垂直拆分与水平拆分区别:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC5%E7%AB%A0-%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96">第5章 系统配置优化</a>
+<ul>
+<li><a href="#5-1-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96">5-1 数据库系统配置优化</a>
+<ul>
+<li><a href="#1-%E7%BD%91%E7%BB%9C%E6%96%B9%E9%9D%A2">1. 网络方面</a></li>
+<li><a href="#2-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E6%95%B0%E7%9A%84%E9%99%90%E5%88%B6">2. 打开文件数的限制</a></li>
+</ul>
+</li>
+<li><a href="#5-2-mysql%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BC%98%E5%8C%96">5-2 MySQL配置文件优化</a></li>
+<li><a href="#5-3-%E7%AC%AC%E4%B8%89%E6%96%B9%E9%85%8D%E7%BD%AE%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8">5-3 第三方配置工具使用</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC6%E7%AB%A0-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96">第6章 服务器硬件优化</a>
+<ul>
+<li><a href="#6-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96">6-1 服务器硬件优化</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="第1章-数据库优化简介">第1章 数据库优化简介</h1>
+<h2 id="数据库优化的目的">数据库优化的目的</h2>
+<p>避免出现页面访问错误</p>
+<ul>
+<li>由于数据库联接timeout产生页面5xx错误</li>
+<li>由于慢查询造成页面无法加载</li>
+<li>由于阻塞造成数据无法提交</li>
+</ul>
+<p>增加数据库的稳定性</p>
+<ul>
+<li>很多数据库问题都是由于低效的查询引起的</li>
+</ul>
+<p>优化用户体验</p>
+<ul>
+<li>流畅页面的访问速度</li>
+<li>良好的网站功能体验</li>
+</ul>
+<h2 id="数据库优化的方式">数据库优化的方式</h2>
+<p>1 SQL及索引（提升性能最大，效率最高）<br>
+2 数据库表结构（根据范式设计表结构）<br>
+3 系统配置（linux对mysql打开文件数的限制等）<br>
+4 硬件（提高文件io的速度，但是成本最高）<br>
+io的优化 并不能减少阻塞  ，但sql索引没有优化好，则会产生大量的慢查询或阻塞，这是由于mysql的内部锁机制造成，所以硬件再好效果也不大<br>
+mysql对内核是有限制的<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/9f311f42f9f3a8be565112dd494dc0a4.png" alt="image.png" loading="lazy"></p>
+<h1 id="第2章-sql语句优化">第2章 SQL语句优化</h1>
+<h2 id="select语句-语法顺序">SELECT语句 - 语法顺序：</h2>
+<pre><code class="language-sql">1. SELECT 
+2. DISTINCT &lt;select_list&gt;
+3. FROM &lt;left_table&gt;
+4. &lt;join_type&gt; JOIN &lt;right_table&gt;
+5. ON &lt;join_condition&gt;
+6. WHERE &lt;where_condition&gt;
+7. GROUP BY &lt;group_by_list&gt;
+8. HAVING &lt;having_condition&gt;
+9. ORDER BY &lt;order_by_condition&gt;
+10.LIMIT &lt;limit_number&gt;
+</code></pre>
+<h2 id="select语句-执行顺序">SELECT语句 - 执行顺序：</h2>
+<pre><code class="language-sql">FROM
+&lt;表名&gt; # 选取表，将多个表数据通过笛卡尔积变成一个表。
+ON
+&lt;筛选条件&gt; # 对笛卡尔积的虚表进行筛选
+JOIN &lt;join, left join, right join...&gt; 
+&lt;join表&gt; # 指定join，用于添加数据到on之后的虚表中，例如left join会将左表的剩余数据添加到虚表中
+WHERE
+&lt;where条件&gt; # 对上述虚表进行筛选
+GROUP BY
+&lt;分组条件&gt; # 分组
+&lt;SUM()等聚合函数&gt; # 用于having子句进行判断，在书写上这类聚合函数是写在having判断里面的
+HAVING
+&lt;分组筛选&gt; # 对分组后的结果进行聚合筛选
+SELECT
+&lt;返回数据列表&gt; # 返回的单列必须在group by子句中，聚合函数除外
+DISTINCT
+# 数据除重
+ORDER BY
+&lt;排序条件&gt; # 排序
+LIMIT
+&lt;行数限制&gt;
+</code></pre>
+<h2 id="2-1-数据准备">2-1 数据准备</h2>
+<p>演示数据库说明：<br>
+使用MySQL提供的sakila数据库，可以通过以下URL获取这个演示数据库<br>
+<a href="http://dev.mysql.com/doc/index-other.html">http://dev.mysql.com/doc/index-other.html</a><br>
+sakila数据库的表结构信息可以通过以下网站查看<br>
+<a href="http://dev.mysql.com/doc/sakila/en/sakila-installation.html">http://dev.mysql.com/doc/sakila/en/sakila-installation.html</a><br>
+数据库基于MySQL5.5版本,不同MySQL版本的优化器有一定的差别。<br>
+导入数据:<br>
+1.下载sakila数据库<br>
+<a href="http://dev.mysql.com/doc/index-other.html.">http://dev.mysql.com/doc/index-other.html</a><br>
+解压:<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/0b6f17cbe8b23cbc5e8406c2f57603d3.png" alt="image.png" loading="lazy"><br>
+2.导入<br>
+CMD 命令窗口连接MySQL  $&gt; mysql -u root -p<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/bebaaeff0075ed788b193decd0f176ff.png" alt="image.png" loading="lazy"><br>
+创建数据库结构<br>
+mysql&gt; source /home/tom/mysql/sakila-schema.sql<br>
+将数据写入到数据库<br>
+mysql&gt; source /home/tom/mysql/sakila-db/sakila-data.sql<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/337398f4ad556d1c80a6fcfe544692e3.png" alt="image.png" loading="lazy"><br>
+Linux下<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/e8b3cd7f530bf0be348499a5ed29aa09.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/d2d99627f0e98d43e72c4534f8994b52.png" alt="image.png" loading="lazy"><br>
+mysql&gt; select @@version;<br>
++-----------+<br>
+| @@version |<br>
++-----------+<br>
+| 5.7.23    |<br>
++-----------+</p>
+<pre><code class="language-sql">mysql&gt; USE sakila;
+Database changed
+
+mysql&gt; SHOW FULL TABLES;
++----------------------------+------------+
+| Tables_in_sakila           | Table_type |
++----------------------------+------------+
+| actor                      | BASE TABLE |
+| actor_info                 | VIEW       |
+| address                    | BASE TABLE |
+| category                   | BASE TABLE |
+| city                       | BASE TABLE |
+| country                    | BASE TABLE |
+| customer                   | BASE TABLE |
+| customer_list              | VIEW       |
+| film                       | BASE TABLE |
+| film_actor                 | BASE TABLE |
+| film_category              | BASE TABLE |
+| film_list                  | VIEW       |
+| film_text                  | BASE TABLE |
+| inventory                  | BASE TABLE |
+| language                   | BASE TABLE |
+| nicer_but_slower_film_list | VIEW       |
+| payment                    | BASE TABLE |
+| rental                     | BASE TABLE |
+| sales_by_film_category     | VIEW       |
+| sales_by_store             | VIEW       |
+| staff                      | BASE TABLE |
+| staff_list                 | VIEW       |
+| store                      | BASE TABLE |
++----------------------------+------------+
+23 rows in set (0.01 sec)
+
+mysql&gt; SELECT COUNT(*) FROM film;
++----------+
+| COUNT(*) |
++----------+
+|     1000 |
++----------+
+1 row in set (0.00 sec)
+
+mysql&gt; SELECT COUNT(*) FROM film_text;
++----------+
+| COUNT(*) |
++----------+
+|     1000 |
++----------+
+1 row in set (0.00 sec)
+</code></pre>
+<h2 id="2-2-mysql慢查日志的开启方式和存储格式">2-2 MySQL慢查日志的开启方式和存储格式</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/42ee2842bdbe1bfbcce73b57acae2062.png" alt="image.png" loading="lazy"><br>
+SQL及索引优化<br>
+相关参数说明:</p>
+<ul>
+<li>show_query_log_file：慢查日志存储位置</li>
+<li>log_queries_not_use_indexes：是否把没有使用索引的查询记录到慢查询日志中</li>
+<li>long_query_time：超过多少秒的查询记录到慢查询日志中</li>
+</ul>
+<p>使用MySQL慢查日志对有效率问题的SQL进行监控</p>
+<ul>
+<li>show variables like 'slow_query_log';    //查看是否开启慢查日志</li>
+<li>set global slow_query_log_file = 'xxx' //设置慢查日志的文件地址</li>
+<li>set global log_queries_not_using_indexes=on;    //是否把没有使用sql索引记录到慢查日志中</li>
+<li>set global long_query_time=1;    //设置慢查日志的时间，查寻超过多少秒记录(单位：秒)</li>
+</ul>
+<p>案例:<br>
+show variables like 'slow_query_log';    //查看是否开启慢查日志</p>
+<pre><code class="language-sql">mysql&gt; show variables like 'slow_query_log';
++----------------+-------+
+| Variable_name  | Value |
++----------------+-------+
+| slow_query_log | OFF   | 值是OFF,说明没有开启该功能
++----------------+-------+
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>查看是否将没有建立索引的查询列入慢查询记录:<br>
+show variables like '%log%';<br>
+显示的结果中有一项&quot;log_queries_not_using_indexes&quot;值为off, 说明没有开启 使用下面的命令开启:<br>
+set global log_queries_not_using_indexes=on;    //是否把没有使用sql索引记录到慢查日志中</p>
+<pre><code class="language-sql">mysql&gt; set global log_queries_not_using_indexes=on;
+Query OK, 0 rows affected (0.00 sec)
+</code></pre>
+<p>查看慢查询时间设置:<br>
+show variables like 'long_query_time';</p>
+<pre><code class="language-sql">mysql&gt; show variables like 'long_query_time';
++-----------------+-----------+
+| Variable_name   | Value     |
++-----------------+-----------+
+| long_query_time | 10.000000 |
++-----------------+-----------+
+</code></pre>
+<p>设置慢查询时间设置:<br>
+set global long_query_time=0;<br>
+set global long_query_time=0;    为啥无效呢，再查还是原来的10<br>
+修改之后，先关闭数据库连接，再重新连接，再次查询就可以看到实际上是修改了的。<br>
+开启慢查询日志<br>
+set global slow_query_log=on;</p>
+<pre><code class="language-sql">mysql&gt; set global slow_query_log=on;
+</code></pre>
+<p>查看慢查询日志文件位置<br>
+show variables like 'slow%';</p>
+<pre><code class="language-sql">mysql&gt; show variables like 'slow%';
++---------------------+-------------------------------------------------------+
+| Variable_name       | Value                                                 |
++---------------------+-------------------------------------------------------+
+| slow_launch_time    | 2                                                     |
+| slow_query_log      | ON                                                    |
+| slow_query_log_file | D:\development\MySQL5.7\data\LAPTOP-9GHMNQJ6-slow.log | 存放位置
++---------------------+-------------------------------------------------------+
+
+# Linux下
+mysql&gt; show variables like 'slow%';
++---------------------+-------------------------------------+
+| Variable_name       | Value                               |
++---------------------+-------------------------------------+
+| slow_launch_time    | 2                                   |
+| slow_query_log      | ON                                  |
+| slow_query_log_file | /var/lib/mysql/cjbCentos01-slow.log |
++---------------------+-------------------------------------+
+3 rows in set (0.00 sec)
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/img_convert/91abe6e6b642d16f8b6908763f67382b.png" alt="image.png" loading="lazy"></figure>
+<h2 id="2-3-mysql慢查日志分析工具之mysqldumpslow">2-3 MySQL慢查日志分析工具之mysqldumpslow</h2>
+<blockquote>
+<p><a href="http://www.javacui.com/DB/542.html">Windows下安装使用mysqldumpslow</a><br>
+不建议安装使用,可能会导致某些系统问题</p>
+</blockquote>
+<h3 id="windows下使用">Windows下使用</h3>
+<p>D:\development\Strawberry\perl\bin&gt;perl mysqldumpslow.pl -h</p>
+<pre><code class="language-sql">D:\development\Strawberry\perl\bin&gt;perl mysqldumpslow.pl -h
+Option h requires an argument
+ERROR: bad option
+
+ Usage: mysqldumpslow [ OPTS... ] [ LOGS... ]
+Parse and summarize the MySQL slow query log. Options are
+  --verbose    verbose
+  --debug      debug
+  --help       write this text to standard output
+  -v           verbose
+  -d           debug
+  -s ORDER     what to sort by (al, at, ar, c, l, r, t), 'at' is default（排序方式）
+                 al: average lock time（平均锁定时间）
+                 ar: average rows sent（平均返回记录数）
+                 at: average query time（平均查询时间）
+                  c: count（访问计数）
+                  l: lock time（锁定时间）
+                  r: rows sent（返回记录）
+                  t: query time（查询时间）
+   -r           reverse the sort order (largest last instead of first)
+   -t NUM       just show the top n queries（返回前面n条数据）
+   -a           don't abstract all numbers to N and strings to 'S'
+   -n NUM       abstract numbers with at least n digits within names
+   -g PATTERN   grep: only consider stmts that include this string（正则匹配模式，大小写不敏感）
+   -h HOSTNAME  hostname of db server for *-slow.log filename (can be wildcard),
+                default is '*', i.e. match all
+   -i NAME      name of server instance (if using mysql.server startup script)
+   -l           don't subtract lock time from total time
+</code></pre>
+<h3 id="linux-下使用">Linux 下使用</h3>
+<p>mysqldumpslow -h 查看分析工具的参数<br>
+mysqldumpslow工具的使用：<br>
+1、mysqldumpslow -t  3 慢查询日志文件路径  | more    //表示使用mysqldumpslow工具分析3条慢查询语句<br>
+mysqldumpslow -t  3 /var/lib/mysql/cjbCentos01-slow.log | more</p>
+<pre><code class="language-bash">[root@cjbCentos01 mysql]# mysqldumpslow -t  3 /var/lib/mysql/cjbCentos01-slow.log | more
+
+Reading mysql slow query log from /var/lib/mysql/cjbCentos01-slow.log
+Count: 2  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=2.0 (4), root[root]@localhost
+  show variables like 'S'
+
+Count: 1  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=1.0 (1), root[root]@localhost
+  select @@version_comment limit N
+
+Count: 1  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost
+  mysqldumpslow -h
+</code></pre>
+<p>2、报表内容：<br>
+Count：执行的行数<br>
+Time: 执行的时间<br>
+Lock: 锁定时间<br>
+Rows: 行数<br>
+服务器信息<br>
+SQL内容等</p>
+<h2 id="2-4-mysql慢查日志分析工具之pt-query-digest">2-4 MySQL慢查日志分析工具之pt-query-digest</h2>
+<blockquote>
+<p><a href="https://www.cnblogs.com/luyucheng/p/6265873.html">MySQL慢查询（二） - pt-query-digest详解慢查询日志</a></p>
+</blockquote>
+<h3 id="安装pt-query-digest">安装pt-query-digest</h3>
+<p>下载pt-query-disgest 、 授权 、 将其放到/usr/bin下：</p>
+<pre><code class="language-bash">wget percona.com/get/pt-query-digest
+chmod u+x pt-query-digest
+mv pt-query-digest /usr/bin/
+</code></pre>
+<p>可能需要的安装依赖工具：</p>
+<pre><code class="language-bash">yum install perl-DBI
+yum install perl-DBD-MySQL
+yum install perl-Time-HiRes
+yum install perl-IO-Socket-SSL
+yum install perl-Digest-MD5 #我的需要是这个
+</code></pre>
+<h3 id="或者安装-percona-toolkit-套件">或者安装 percona-toolkit 套件</h3>
+<pre><code class="language-bash">需要安装。最好安装这个套件：
+wget http://www.percona.com/downloads/percona-toolkit/2.2.4/percona-toolkit-2.2.4.tar.gz
+tar -zxvf percona-toolkit-2.2.4.tar.gz
+cd percona-toolkit-2.2.4
+perl Makefile.PL
+make &amp;&amp; make install
+
+如果报错(Can't locate Time/HiRes.pm in @INC (@INC contains....)的话，
+yum -y install perl-Time-HiRes 或者 yum install -y perl-CPAN perl-Time-HiRes
+</code></pre>
+<h3 id="使用-pt-query-digest">使用 pt-query-digest</h3>
+<p>使用帮助: pt-query-digest --help</p>
+<h4 id="pt-query-digest语法及重要选项">pt-query-digest语法及重要选项</h4>
+<pre><code class="language-bash">pt-query-digest [OPTIONS] [FILES] [DSN]
+--create-review-table  当使用--review参数把分析结果输出到表中时，如果没有表就自动创建。
+--create-history-table  当使用--history参数把分析结果输出到表中时，如果没有表就自动创建。
+--filter  对输入的慢查询按指定的字符串进行匹配过滤后再进行分析
+--limit    限制输出结果百分比或数量，默认值是20,即将最慢的20条语句输出，如果是50%则按总响应时间占比从大到小排序，输出到总和达到50%位置截止。
+--host  mysql服务器地址
+--user  mysql用户名
+--password  mysql用户密码
+--history 将分析结果保存到表中，分析结果比较详细，下次再使用--history时，如果存在相同的语句，且查询所在的时间区间和历史表中的不同，则会记录到数据表中，可以通过查询同一CHECKSUM来比较某类型查询的历史变化。
+--review 将分析结果保存到表中，这个分析只是对查询条件进行参数化，一个类型的查询一条记录，比较简单。当下次使用--review时，如果存在相同的语句分析，就不会记录到数据表中。
+--output 分析结果输出类型，值可以是report(标准分析报告)、slowlog(Mysql slow log)、json、json-anon，一般使用report，以便于阅读。
+--since 从什么时间开始分析，值为字符串，可以是指定的某个”yyyy-mm-dd [hh:mm:ss]”格式的时间点，也可以是简单的一个时间值：s(秒)、h(小时)、m(分钟)、d(天)，如12h就表示从12小时前开始统计。
+--until 截止时间，配合—since可以分析一段时间内的慢查询。
+</code></pre>
+<p>案例:<br>
+pt-query-digest /var/lib/mysql/cjbCentos01-slow.log | more<br>
+输出到文件：pt-query-digest show-log &gt; slow_log.report<br>
+输出到数据库表 pt-query-digest show.log -review <br>
+h=127.0.0.1,D=test,p=root.P=3306,u=root,t=query_review <br>
+--create-reviewtable <br>
+--review-history t=hostname_show<br>
+pt-query-digest慢查询日志的输出有三部分</p>
+<h3 id="分析pt-query-digest输出结果">分析pt-query-digest输出结果</h3>
+<p>第一部分：总体统计结果<br>
+Overall：总共有多少条查询<br>
+Time range：查询执行的时间范围<br>
+unique：唯一查询数量，即对查询条件进行参数化以后，总共有多少个不同的查询<br>
+total：总计   min：最小   max：最大  avg：平均<br>
+95%：把所有值从小到大排列，位置位于95%的那个数，这个数一般最具有参考价值<br>
+median：中位数，把所有值从小到大排列，位置位于中间那个数</p>
+<pre><code class="language-bash"># 该工具执行日志分析的用户时间，系统时间，物理内存占用大小，虚拟内存占用大小
+# 340ms user time, 140ms system time, 23.99M rss, 203.11M vsz
+# 工具执行时间
+# Current date: Fri Nov 25 02:37:18 2016
+# 运行分析工具的主机名
+# Hostname: localhost.localdomain
+# 被分析的文件名
+# Files: slow.log
+# 语句总数量，唯一的语句数量，QPS，并发数
+# Overall: 2 total, 2 unique, 0.01 QPS, 0.01x concurrency ________________
+# 日志记录的时间范围
+# Time range: 2016-11-22 06:06:18 to 06:11:40
+# 属性               总计      最小    最大    平均    95%  标准    中等
+# Attribute          total     min     max     avg     95%  stddev  median
+# ============     ======= ======= ======= ======= ======= ======= =======
+# 语句执行时间
+# Exec time             3s   640ms      2s      1s      2s   999ms      1s
+# 锁占用时间
+# Lock time            1ms       0     1ms   723us     1ms     1ms   723us
+# 发送到客户端的行数
+# Rows sent              5       1       4    2.50       4    2.12    2.50
+# select语句扫描行数
+# Rows examine     186.17k       0 186.17k  93.09k 186.17k 131.64k  93.09k
+# 查询的字符数
+# Query size           455      15     440  227.50     440  300.52  227.50
+</code></pre>
+<p>第二部分：查询分组统计结果<br>
+Rank：所有语句的排名，默认按查询时间降序排列，通过--order-by指定<br>
+Query ID：语句的ID，（去掉多余空格和文本字符，计算hash值）<br>
+Response：总的响应时间<br>
+time：该查询在本次分析中总的时间占比<br>
+calls：执行次数，即本次分析总共有多少条这种类型的查询语句<br>
+R/Call：平均每次执行的响应时间<br>
+V/M：响应时间Variance-to-mean的比率<br>
+Item：查询对象</p>
+<pre><code class="language-bash"># Profile
+# Rank Query ID           Response time Calls R/Call V/M   Item
+# ==== ================== ============= ===== ====== ===== ===============
+#    1 0xF9A57DD5A41825CA  2.0529 76.2%     1 2.0529  0.00 SELECT
+#    2 0x4194D8F83F4F9365  0.6401 23.8%     1 0.6401  0.00 SELECT wx_member_base
+</code></pre>
+<p>第三部分：每一种查询的详细统计结果<br>
+由下面查询的详细统计结果，最上面的表格列出了执行次数、最大、最小、平均、95%等各项目的统计。<br>
+ID：查询的ID号，和上图的Query ID对应<br>
+Databases：数据库名<br>
+Users：各个用户执行的次数（占比）<br>
+Query_time distribution ：查询时间分布, 长短体现区间占比，本例中1s-10s之间查询数量是10s以上的两倍。<br>
+Tables：查询中涉及到的表<br>
+Explain：SQL语句</p>
+<pre><code class="language-bash"># Query 1: 0 QPS, 0x concurrency, ID 0xF9A57DD5A41825CA at byte 802 ______
+# This item is included in the report because it matches --limit.
+# Scores: V/M = 0.00
+# Time range: all events occurred at 2016-11-22 06:11:40
+# Attribute    pct   total     min     max     avg     95%  stddev  median
+# ============ === ======= ======= ======= ======= ======= ======= =======
+# Count         50       1
+# Exec time     76      2s      2s      2s      2s      2s       0      2s
+# Lock time      0       0       0       0       0       0       0       0
+# Rows sent     20       1       1       1       1       1       0       1
+# Rows examine   0       0       0       0       0       0       0       0
+# Query size     3      15      15      15      15      15       0      15
+# String:
+# Databases    test
+# Hosts        192.168.8.1
+# Users        mysql
+# Query_time distribution
+#   1us
+#  10us
+# 100us
+#   1ms
+#  10ms
+# 100ms
+#    1s  ################################################################
+#  10s+
+# EXPLAIN /*!50100 PARTITIONS*/
+select sleep(2)\G
+</code></pre>
+<p>解决:<br>
+1.查询时间长,查询次数多<br>
+2.IO大的sql,分析Rows Examine项,扫描的行数<br>
+3.未命中索引的sql,分析Rows Examine与Rows send发送的行数的对比</p>
+<h2 id="2-5-如何通过慢查日志发现有问题的sql">2-5 如何通过慢查日志发现有问题的SQL</h2>
+<p>1.查询次数多且每次查询占用时间长的SQL<br>
+通常为pt-query-digest分析的前几个查询<br>
+2.IO大的SQL<br>
+注意pt-query-digest分析中的Rows examine项<br>
+3.未命中索引的SQL<br>
+注意pt-query-digest分析中的Rows examine和Row send 的对比<br>
+当Rows examine&gt;&gt;Row send 基本上是使用了索引扫描或者表扫描的方式来进行查询，需要进行优化</p>
+<h2 id="2-6-通过explain查询和分析sql的执行计划">2-6 通过explain查询和分析SQL的执行计划</h2>
+<pre><code class="language-bash">mysql&gt; explain select customer_id,first_name,last_name from customer;
++----+-------------+----------+------+---------------+------+---------+------+------+-------+
+| id | select_type | table    | type | possible_keys | key  | key_len | ref  | rows | Extra |
++----+-------------+----------+------+---------------+------+---------+------+------+-------+
+|  1 | SIMPLE      | customer | ALL  | NULL          | NULL | NULL    | NULL |  599 | NULL  |
++----+-------------+----------+------+---------------+------+---------+------+------+-------+
+1 row in set (0.00 sec)
+</code></pre>
+<p><strong>explain 返回各列的含义</strong><br>
+select_type：<br>
+表示 <code>select</code> 查询的类型，主要是用于区分各种复杂的查询，例如：<code>普通查询</code>、<code>联合查询</code>、<code>子查询</code>等。</p>
+<ol>
+<li>SIMPLE：表示最简单的 select 查询语句，在查询中不包含子查询或者交并差集等操作。</li>
+<li>PRIMARY：查询中最外层的SELECT（存在子查询的外层的表操作为PRIMARY）。</li>
+<li>SUBQUERY：子查询中首个SELECT。</li>
+<li>DERIVED：被驱动的SELECT子查询（子查询位于FROM子句）。</li>
+<li>UNION：在SELECT之后使用了UNION。</li>
+</ol>
+<p>table：显示这一行的数据时关于哪张表的<br>
+type：显示连接使用了何种类型 const、eq_reg、ref、range、index和ALL；const：主键、索引；eq_reg：主键、索引的范围查找；ref：连接的查找（join），range：索引的范围查找；index：索引的扫描；<br>
+possible_keys：显示可能应用在这张表中的索引，如果为空，没有可能的索引<br>
+key：实际使用的索引，如果为null，没有使用索引<br>
+key_len：使用的索引的长度，在不损失精确性的情况下，长度越短越好<br>
+ref：显示索引的哪一列被使用了，如果可能的话，是一个常数<br>
+rows：mysql认为必须检查的用来返回请求数据的行数；<br>
+extra列需要注意的返回值<br>
+<strong>using filesort</strong>：mysql需要进行额外的步骤来发现如果对返回的行排序。它根据连接类型以及存储排序键值和匹配条件的全部行的行指针来排序全部行<br>
+<strong>using temporary</strong>：MySQL需要创建一个临时表来存储结果，这通常发生在对不同的列集进行order by上，而不是group by 上</p>
+<p>其中type是重要的列，以下从最好到最差：<br>
+const：是一个常数查找，一般是主键和唯一索引查找<br>
+eq_reg：主键和唯一索引的范围查找<br>
+ref：连接的查找，一般一个表是基于某一个索引的查找<br>
+range：基于索引的范围查找<br>
+index：基于索引的扫描<br>
+all：基于表扫描</p>
+<h2 id="2-7-count和max的优化">2-7 Count()和Max()的优化</h2>
+<h3 id="1对max查询可以为表创建索引">1.对max()查询，可以为表创建索引</h3>
+<p>利用max方法查询最后一笔交易的时间<br>
+explain select max(payment_date) from payment \G<br>
+\g:    定界符，等价于“；”<br>
+\G:    将查询到的横向表格纵向输出，方便阅读</p>
+<pre><code class="language-sql">mysql&gt; explain select max(payment_date) from payment \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: payment
+   partitions: NULL
+         type: ALL	# 全表扫描
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 16086
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>这里就是一个表扫描操作，一共扫描了16086行数据。如果数据表很大，这里的IO效率就会很差<br>
+优化方法：max(field)可以通过为field建立索引 来优化<br>
+语法:    create index index_name on table_name(column_name 规定需要索引的列)<br>
+create index idx_paydate on payment(payment_date);<br>
+优化后：</p>
+<pre><code class="language-sql">mysql&gt; explain select max(payment_date) from payment \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: NULL
+   partitions: NULL
+         type: NULL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: NULL
+     filtered: NULL
+        Extra: Select tables optimized away
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>优化之后并不需要查询表中的数据，而是通过索引就可以知道执行的结果了。<br>
+因为索引是顺序排列的，只需要查最后一个数据。这样就尽可能减少了IO操作。<br>
+而且这时候，不管表数据量有多大，查询max所需要的时间是基本固定的</p>
+<h3 id="2count对多个关键字进行查询">2.count()对多个关键字进行查询</h3>
+<p>比如在一条SQL中同时查出2006年和2007年电影的数量，语句：</p>
+<pre><code class="language-sql">select count(release_year='2006' or null) as '2006年电影数量',
+       count(release_year='2007' or null) as '2007年电影数量'
+from film;
+</code></pre>
+<p>这里解释一下为什么要加'or null'：<br>
+count()函数只有count(NULL)是才不计数，即count(NULL)=0；<br>
+而'release_year='2006''是个比较运算符，结果为1或者0，不管是不是2006 count函数都会计数。<br>
+当加上or null以后，当值不为2006，release_year='2006'的结果为0, '0 or null'结果为null，这样就排除了2006以外的结果<br>
+<strong>count(*) 和 count(field) 的区别</strong><br>
+count(*) 查询的结果中，包含了该列值为null的结果</p>
+<h2 id="2-8-子查询的优化">2-8 子查询的优化</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/5581b7ae506a3c95e3bfd542ef99cb60.png" alt="image.png" loading="lazy"><br>
+在子查询的优化中：<br>
+通常做法是把需要的子查询优化为join查询，但在优化时要注意是否有数据的重复，因为在关联语句中的可能存在一对多的关系，从而造成数据冗余。<br>
+join语句是相当于将多个表进行关联，在关联条件上一一进行条件匹配查询，因此返回值不仅取决于原始表中的数据个数，还取决于其他表中与之匹配的数据的个数。<br>
+所以要加上distinct</p>
+<pre><code class="language-sql">select distinct t.id from t join t1 on t.id=t1.tid;
+</code></pre>
+<h2 id="2-9-group-by的优化">2-9 group by的优化</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0dc90b299a7a3277c5c5f6a53586bf96.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/f7bcb83039ae31030069aea11c6e1e5c.png" alt="image.png" loading="lazy"><br>
+group by可能会出现临时表（Using temporary），文件排序（Using filesort）等，影响效率。<br>
+可以通过关联的子查询，来避免产生临时表和文件排序，可以节省io</p>
+<ol>
+<li>using()用于两张表的join查询，要求using()指定的列在两个表中均存在，并使用之用于join的条件;例如: select a.<em>, b.</em> from a left join b using(colA);</li>
+<li>group by 的列尽量要使用在有索引的列上,否则就会使用临时表和文件</li>
+</ol>
+<pre><code class="language-sql">改写前
+select actor.first_name,actor.last_name,count(*)
+from sakila.film_actor
+inner join sakila.actor using(actor_id)
+group by film_actor.actor_id;
+
+改写后
+select actor.first_name,actor.last_name,c.cnt
+from sakila.actor inner join(
+select actor_id,count(*) as cnt from sakila.film_actor group by
+actor_id
+)as c using(actor_id);
+</code></pre>
+<p>改写前</p>
+<pre><code class="language-sql">mysql&gt; explain select actor.first_name,actor.last_name,count(*)
+    -&gt; from sakila.film_actor
+    -&gt; inner join sakila.actor using(actor_id)
+    -&gt; group by film_actor.actor_id \G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: actor
+   partitions: NULL
+         type: ALL
+possible_keys: PRIMARY
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 200
+     filtered: 100.00
+        Extra: Using temporary; Using filesort
+*************************** 2. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film_actor
+   partitions: NULL
+         type: ref
+possible_keys: PRIMARY,idx_fk_film_id
+          key: PRIMARY
+      key_len: 2
+          ref: sakila.actor.actor_id
+         rows: 27
+     filtered: 100.00
+        Extra: Using index
+2 rows in set, 1 warning (0.00 sec)
+
+ERROR: 
+No query specified
+</code></pre>
+<p>改写后</p>
+<pre><code class="language-sql">mysql&gt; explain select actor.first_name,actor.last_name,c.cnt
+    -&gt; from sakila.actor inner join(
+    -&gt; select actor_id,count(*) as cnt from sakila.film_actor group by
+    -&gt; actor_id) as c using(actor_id) \G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: actor
+   partitions: NULL
+         type: ALL
+possible_keys: PRIMARY
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 200
+     filtered: 100.00
+        Extra: NULL
+*************************** 2. row ***************************
+           id: 1
+  select_type: PRIMARY
+        table: &lt;derived2&gt;
+   partitions: NULL
+         type: ref
+possible_keys: &lt;auto_key0&gt;
+          key: &lt;auto_key0&gt;
+      key_len: 2
+          ref: sakila.actor.actor_id
+         rows: 27
+     filtered: 100.00
+        Extra: NULL
+*************************** 3. row ***************************
+           id: 2
+  select_type: DERIVED
+        table: film_actor
+   partitions: NULL
+         type: index
+possible_keys: PRIMARY,idx_fk_film_id
+          key: PRIMARY
+      key_len: 4
+          ref: NULL
+         rows: 5462
+     filtered: 100.00
+        Extra: Using index
+3 rows in set, 1 warning (0.00 sec)
+
+ERROR: 
+No query specified
+</code></pre>
+<h2 id="2-10-limit查询的优化">2-10 Limit查询的优化</h2>
+<p>limit常用于分页处理，时常会伴随order by从句使用，因此大多时候会使用Filesorts这样会造成大量的io问题<br>
+1.使用有索引的列或主键进行order by操作<br>
+2.记录上次返回的主键，在下次查询时使用主键过滤<br>
+优化limit查询<br>
+例如: select film_id,description from sakila.film order by title limit 50,5; 语句的优化<br>
+这条语句的意思根据 title 字段升序，然后取从第51-55行的数据</p>
+<pre><code class="language-sql">mysql&gt; explain select film_id,description from sakila.film order by title limit 50,5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: ALL
+possible_keys: NULL
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 1000
+     filtered: 100.00
+        Extra: Using filesort
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<ul>
+<li>优化步骤1:使用有索引的列或这件进行order by操作
+<ul>
+<li>select film_id,description from sakila.film order by film_id limit 50,5;</li>
+<li>(优化前是order by title非主键，优化后是order by film_id,是主键)</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-sql">mysql&gt; explain select film_id ,description from sakila.film order by film_id limit 50,5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: index
+possible_keys: NULL
+          key: PRIMARY
+      key_len: 2
+          ref: NULL
+         rows: 55
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.01 sec)
+</code></pre>
+<ul>
+<li>优化步骤2:记录上次返回的主键,在下次查询时用 主键过滤(避免了数据量大时扫描过多的记录)
+<ul>
+<li>select film_id,description from sakila.film where film_id &gt;50 order by film_id limit 5;</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-sql">mysql&gt; explain select film_id,description from sakila.film where film_id &gt;50 order by film_id limit 5 \G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: film
+   partitions: NULL
+         type: range
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 2
+          ref: NULL
+         rows: 500
+     filtered: 100.00
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+</code></pre>
+<p>使用这种方式有一个限制，就是主键一定要顺序排序和连续的，如果主键出现空缺可能会导致最终页面上显示的列表不足5条，解决办法是附加一列，保证这一列是自增的并增加索引就可以了<br>
+<strong>【推荐】使用下面这种方式:</strong></p>
+<blockquote>
+<p>【推荐】利用延迟关联或者子查询优化超多分页场景。<br>
+说明：MySQL并不是跳过offset行，而是取offset+N行，然后返回放弃前offset行，返回N行，那当offset特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过特定阈值的页数进行SQL改写。<br>
+正例：先快速定位需要获取的id段，然后再关联：<br>
+SELECT a.* FROM 表1 a, (select id from 表1 where 条件 LIMIT 100000,20 ) b where a.id=b.id</p>
+</blockquote>
+<pre><code class="language-sql">SELECT a.film_id,a.description FROM 
+sakila.film a, (SELECT film_id from sakila.film LIMIT 500,5) b where a.film_id=b.film_id;
+</code></pre>
+<h1 id="第3章-索引优化">第3章 索引优化</h1>
+<h2 id="3-1-如何选择合适的列建立索引">3-1 如何选择合适的列建立索引</h2>
+<h3 id="选择合适的索引列">选择合适的索引列</h3>
+<p>1.在where，group by，order by，on从句中出现的列<br>
+2.索引字段越小越好(因为数据库的存储单位是页，一页中能存下的数据越多越好 )<br>
+3.离散度大的列放在联合索引前面<br>
+select count(distinct customer_id), count(distinct staff_id) from payment;<br>
+是index(sftaff_id,customer_id)好？还是index(customer_id,staff_id)好呢？</p>
+<pre><code class="language-sql">mysql&gt; select count(distinct customer_id),count(distinct staff_id) from payment;
++-----------------------------+--------------------------+
+| count(distinct customer_id) | count(distinct staff_id) |
++-----------------------------+--------------------------+
+|                         599 |                        2 |
++-----------------------------+--------------------------+
+1 row in set (0.01 sec)
+</code></pre>
+<p>由于customer_id的离散度更大，所以应该使用index(customer_id,staff_id)</p>
+<h3 id="离散度的判断">离散度的判断</h3>
+<p>查看表的数据结构信息： desc 表名；<br>
+离散度：数据唯一值越多，离散度越高。<br>
+判断某一列的离散度：select count(distinct 字段名）from 表名；返回的结果值越大，说明离散度越大，建立联合索引时，应该放到前面；<br>
+例如：select count(distinct id),count(distinct real_name) from user;<br>
+id 是唯一值，所以离散度更高。而 real_name 会出现重复—&gt;会有同名同姓的情况，所以离散度低。</p>
+<h2 id="3-2-索引优化sql的方法">3-2 索引优化SQL的方法</h2>
+<h3 id="重复及冗余索引">重复及冗余索引</h3>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/8ef8a21534d75012a97544126ef1a0f1.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/c7206c882bc31e75e7e081bd07820192.png" alt="image.png" loading="lazy"><br>
+过多的索引不但影响写入，而且影响查询，索引越多，分析越慢<br>
+如何找到重复和多余的索引，主键已经是索引了，所以primay key 的主键不用再设置unique唯一索引了<br>
+冗余索引，是指多个索引的前缀列相同，innodb会在每个索引后面自动加上主键信息</p>
+<p>冗余索引查询工具<br>
+pt-duplicate-key-checker</p>
+<h3 id="查找重复及冗余索引">查找重复及冗余索引</h3>
+<p>通过统计信息库 information_schma 查找一些重复冗余的索引<br>
+use information_schema;</p>
+<pre><code class="language-sql">SELECT a.TABLE_SCHEMA AS '数据名'
+	,a.TABLE_NAME AS '表名'
+	,a.INDEX_NAME AS '索引1'
+	,b.INDEX_NAME AS '索引2'
+	,a.COLUMN_NAME AS '重复列名'
+FROM STATISTICS a 
+	JOIN STATISTICS b ON a.TABLE_SCHEMA = b.TABLE_SCHEMA
+						AND a.TABLE_NAME = b.TABLE_NAME
+						AND a.SEQ_IN_INDEX = b.SEQ_IN_INDEX
+						AND a.COLUMN_NAME = b.COLUMN_NAME
+WHERE a.SEQ_IN_INDEX = 1 AND a.INDEX_NAME &lt;&gt; b.INDEX_NAME
+</code></pre>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/f7cda43a0ba325da21b13c3969346df2.png" alt="image.png" loading="lazy"><br>
+使用 pt-duplicate-key-checher 工具检查重复及冗余索引</p>
+<pre><code class="language-bash">pt-duplicate-key-checker -uroot -p'123456' -h 127.0.0.1
+</code></pre>
+<h2 id="3-3-索引维护的方法">3-3 索引维护的方法</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/6fb10d7408fa3caf8b21895c0548f321.png" alt="image.png" loading="lazy"><br>
+索引的维护及优化---删除不用索引<br>
+目前MySQL中还没有记录索引的使用情况,但是在PerconMySQL和MariaDB中可以通过INDEX_STATISTICS表来查看那些索引未使用,但在MySQL中目前只能通过慢查日志配合 pt-index-usage 工具来进行索引使用情况的分析。</p>
+<h2 id="3-4-索引失效的情况">3-4 索引失效的情况</h2>
+<ul>
+<li>对于组合索引，不是使用组合索引最左边的字段，则不会使用索引(<strong>违法最左前缀法则</strong>)<br>
+如果建立的是复合索引，索引的顺序要按照建立时的顺序，即从左到右，并且不跳过索引中的列，如：a-&gt;b-&gt;c（和 B+树的数据结构有关）<br>
+无效索引举例:
+<ul>
+<li>a-&gt;c：a 有效，c 无效</li>
+<li>b-&gt;c：b、c 都无效</li>
+<li>c：c 无效</li>
+</ul>
+</li>
+<li>以%开头的like查询如%abc，无法使用索引；非%开头的like查询如abc%，相当于范围查询，会使用索引</li>
+<li>查询条件中列类型是字符串，没有使用引号，可能会因为类型不同发生隐式转换，使索引失效</li>
+<li>判断索引列是否不等于某个值时</li>
+<li>对索引列进行运算</li>
+<li>查询条件使用or连接，也会导致索引失效</li>
+</ul>
+<h1 id="第4章-数据库结构优化">第4章 数据库结构优化</h1>
+<h2 id="4-1-选择合适的数据类型">4-1 选择合适的数据类型</h2>
+<p>1.使用可存下数据的最小的数据类型<br>
+2.使用简单地数据类型，Int要比varchar类型在mysql处理上更简单<br>
+3.尽可能使用not null定义字段，这是由innodb的特性决定的，因为非not null的数据可能需要一些额外的字段进行存储，这样就会增加一些IO。可以对非null的字段设置一个默认值<br>
+4.尽量少用text，非用不可最好<strong>分表</strong>，将text字段存放到另一张表中，在需要的时候再使用联合查询，这样可提高查询主表的效率</p>
+<h3 id="例子1-用int存储日期时间">例子1、用Int存储日期时间</h3>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/173a9902527f649b977425ad0a188b35.png" alt="image.png" loading="lazy"><br>
+from_unixtime() 可将Int类型的时间戳转换为时间格式<br>
+select from_unixtime(1392178320); 输出为 2014-02-12 12:12:00<br>
+unix_timestamp() 可将时间格式转换为Int类型<br>
+select unix_timestamp('2014-02-12 12:12:00'); 输出为1392178320</p>
+<pre><code class="language-sql">mysql&gt; create table testtime(id int auto_increment not null,timestr int,PRIMARY KEY(id));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql&gt; desc testtime;
++---------+---------+------+-----+---------+----------------+
+| Field   | Type    | Null | Key | Default | Extra          |
++---------+---------+------+-----+---------+----------------+
+| id      | int(11) | NO   | PRI | NULL    | auto_increment |
+| timestr | int(11) | YES  |     | NULL    |                |
++---------+---------+------+-----+---------+----------------+
+2 rows in set (0.01 sec)
+mysql&gt; insert into testtime(timestr) values(UNIX_TIMESTAMP('2014-06-01 21:00:00'));
+Query OK, 1 row affected (0.00 sec)
+
+mysql&gt; select FROM_UNIXTIME(timestr) from testtime;
++------------------------+
+| FROM_UNIXTIME(timestr) |
++------------------------+
+| 2014-06-01 21:00:00    |
++------------------------+
+1 row in set (0.00 sec)
+</code></pre>
+<h3 id="例子2-存储ip地址bigint">例子2、存储IP地址——bigInt</h3>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/989a867c54500273610199805c158d28.png" alt="image.png" loading="lazy"><br>
+利用 inet_aton() , inet_ntoa() 转换<br>
+select inet_aton('192.169.1.1'); 输出为3232301313<br>
+select inet_ntoa(3232301313); 输出为192.169.1.1</p>
+<h2 id="4-2-数据库表的范式化优化">4-2 数据库表的范式化优化</h2>
+<figure data-type="image" tabindex="2"><img src="https://img-blog.csdnimg.cn/img_convert/7bfe83b916fa9cebb10c70779f1515b7.png" alt="image.png" loading="lazy"></figure>
+<p>表的范式化即数据库设计的规范化：数据表不存在非关键字段对任意关键字段的传递函数依赖，则符合第三范式。<br>
+可以将一张数据表进行拆分，来满足第三范式的要求。<br>
+设计表的时候符合范式化是为了：减少数据冗余、减少表的插入、更新、删除异常<br>
+设计表的时候使用反范式化是为了：以空间换时间、增强代码的可编程性和可维护性<br>
+不符合第三范式要求的表存在以下问题：<br>
+1.数据冗余:（分类、分类描述）对于每一个商品都会进行记录<br>
+2.数据插入异常<br>
+3.数据更新异常<br>
+4.数据删除异常(如果删除了所有饮料类的商品，就查询不到分类，分类描述了)</p>
+<p>分类描述依赖于分类，分类又依赖于商品名称，而商品名称为主键——关键字段<br>
+当不符合第三范式的时候，可以拆分表为两份表，用之前的非关键字列作为新表的关键字，然后建立起新表和旧表的关联表<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/90f51645c8ea9e9f13f6a8765a3be5bf.png" alt="image.png" loading="lazy"></p>
+<h2 id="4-3-数据库表的反范式化优化">4-3 数据库表的反范式化优化</h2>
+<p>反范式化：为了查询效率的考虑，把原本符合第三范式的表适当增加冗余，以达到优化查询效率的目的。以空间换取时间的操作。<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/2386bdcfa412906b56935d8998c8853f.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/38017608754f1be79ab99f341cb04cca.png" alt="image.png" loading="lazy"></p>
+<p>为提高io读的效率，牺牲一些存储空间的代价。但是提高了读取数据的效率。<br>
+如用户常常会大量查询订单的信息，那么把用户名，电话，地址和订单价格放入一个订单表中，虽然违反了第三范式，因为订单id，用户名，电话，地址等，存在传递函数依赖，但是由于数据都是在一张表中，方便了sql语句实现，订单信息的读取，从而优化了io性能；<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/e40fada07c84f9d076092ce55e02e1ca.png" alt="image.png" loading="lazy"><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/0598e3da7044a769046cdb876966594c.png" alt="image.png" loading="lazy"></p>
+<h2 id="4-4-数据库表的垂直拆分">4-4 数据库表的垂直拆分</h2>
+<p><strong>表的垂直拆分的原则</strong><br>
+所谓垂直拆分，就是把原来一个有很多列的表拆分成多个表解决表的宽度问题，通常拆分原则如下：<br>
+1、把不常用的字段单独存放到一个表中<br>
+2、把大字段独立存放到一个表中<br>
+3、把经常一起使用的字段放到一起<br>
+当表的宽度过宽的时候，我们需要对表进行垂直拆分，具体的建议如下（原则上是人以群分，列以表分）：一表变多表，物理上不在一起，逻辑上是在一起的！<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/7ba600cd3c7c0809090e8e4f8c40c50d.png" alt="image.png" loading="lazy"><br>
+<strong>拆分后</strong><br>
+<strong>把 title 和 description 通过 film_id 建立一个新表</strong><br>
+<img src="https://img-blog.csdnimg.cn/img_convert/86a5767177444bd8823645fb9a55cc8b.png" alt="image.png" loading="lazy"></p>
+<figure data-type="image" tabindex="3"><img src="https://img-blog.csdnimg.cn/img_convert/f6db234c0d55e11b6d6811bb0d3fefb7.png" alt="image.png" loading="lazy"></figure>
+<h2 id="4-5-数据库表的水平拆分">4-5 数据库表的水平拆分</h2>
+<p>表的水平拆分: 主要是解决数据量过大的问题,水平拆分每个表的表结构都是完全一致的(当单表的数据大于一亿时,尽管加了索引,还是会比较慢);<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/04e296aea6f5a0dc4e8cd592281a6320.png" alt="image.png" loading="lazy"></p>
+<p>常用的方法是：hash取模拆分<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/a8b4b8685ca35bc84380345581f9da8c.png" alt="image.png" loading="lazy"><br>
+1、对大表的主键id值进行hash运算，比如要拆分为5张表，可以使用mod(主键id，5）取出0-4个值<br>
+2、针对不同的hashID把数据存到不同的表中。<br>
+挑战：</p>
+<ol>
+<li>跨分区表进行数据查询</li>
+<li>统计及后台报表操作</li>
+</ol>
+<h3 id="垂直拆分与水平拆分区别">垂直拆分与水平拆分区别:</h3>
+<p><strong>水平拆分  解决数据量的问题 垂直拆分解决表的宽度问题，后台用总表，前台用拆分表</strong><br>
+<strong>垂直拆分是拆字段    水平拆分是表结构不变  把数据给分开了</strong></p>
+<h1 id="第5章-系统配置优化">第5章 系统配置优化</h1>
+<h2 id="5-1-数据库系统配置优化">5-1 数据库系统配置优化</h2>
+<h3 id="1-网络方面">1. 网络方面</h3>
+<figure data-type="image" tabindex="4"><img src="https://img-blog.csdnimg.cn/img_convert/0305c93424fadfa67dc7be11bcf9ff7a.png" alt="image.png" loading="lazy"></figure>
+<ul>
+<li>增加tcp支持的队列数目，net.ipv4.tcp_max_syn_backlog=65535</li>
+<li>减少断开连接的数目，及时回收资源</li>
+</ul>
+<p>net.ipv4.tcp_max_tw_buckets = 8000<br>
+net.ipv4.tcp_tw_reuse = 1<br>
+net.ipv4.tcp_tw_recycle =1<br>
+net.ipv4.tcp_fin_timeout=10</p>
+<h3 id="2-打开文件数的限制">2. 打开文件数的限制</h3>
+<p>修改/etc/security/limits.conf文件，增加一下内容以修改打开文件数量的限制。<br>
+关闭iptables，selinux等防火墙软件<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/1231fc052c217591a60166f88b3f2990.png" alt="image.png" loading="lazy"></p>
+<h2 id="5-2-mysql配置文件优化">5-2 MySQL配置文件优化</h2>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/b84501743d7b4436fe66247f64041d81.png" alt="image.png" loading="lazy"><br>
+/usr/sbin/mysqld - -verbose - -help | grep -A 1 'Default options '<br>
+查看MySQL配置文件路径，如果存在多个配置文件，则后面的会覆盖前面的</p>
+<ul>
+<li><strong>innodb_buffer_pool_size</strong></li>
+</ul>
+<p>重要，缓冲池的大小 推荐总内存量的75%，越大越好。</p>
+<pre><code class="language-sql">select engine,
+round(sum(data_length+index_length)/1024/1024,1) as &quot;Total MB&quot;
+FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN 
+(&quot;inoformation_schema&quot;,&quot;performance_schema&quot;)
+Group by engine;
+
+mysql&gt; select engine,
+    -&gt; round(sum(data_length+index_length)/1024/1024,1) as &quot;Total MB&quot;
+    -&gt; FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA NOT IN 
+    -&gt; (&quot;inoformation_schema&quot;,&quot;performance_schema&quot;)
+    -&gt; Group by engine;
++--------+----------+
+| engine | Total MB |
++--------+----------+
+| NULL   |     NULL |
+| CSV    |      0.0 |
+| InnoDB |      9.0 |
+| MEMORY |      0.0 |
+| MyISAM |      0.3 |
++--------+----------+
+5 rows in set (0.11 sec)
+</code></pre>
+<ul>
+<li><strong>innodb_buffer_pool_instances</strong></li>
+</ul>
+<p>默认只有一个缓冲池，如果一个缓冲池中并发量过大，容易阻塞，此时可以分为多个缓冲池；</p>
+<ul>
+<li><strong>innodb_log_buffer_size</strong></li>
+</ul>
+<p>log缓冲的大小，一般最常1s就会刷新一次，故不用太大；<br>
+​</p>
+<ul>
+<li><strong>innodb_flush_log_at_trx_commit</strong></li>
+</ul>
+<p>重要，对io效率影响较大。<br>
+0: 1s刷新一次到磁盘；<br>
+1：每次提交都会刷新到磁盘；<br>
+2：每次提交刷新到缓冲区，1s刷新到磁盘；默认为1。<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/dbd3fceb0459a668bfc36112157e89d8.png" alt="image.png" loading="lazy"><br>
+​</p>
+<ul>
+<li>innodb_read_io_threads</li>
+<li>innodb_write_io_threads</li>
+</ul>
+<p>读写的io进程数量，默认为4</p>
+<ul>
+<li>innodb_file_per_table</li>
+</ul>
+<p>重要，控制每个表使用独立的表空间，默认为OFF，即所有表建立在一个共享的表空间中。造成IO瓶颈。推荐设置ON<br>
+​</p>
+<ul>
+<li>innodb_stats_on_metadata</li>
+</ul>
+<p>mysql在什么情况下会刷新表的统计信息，一般为OFF。<br>
+​</p>
+<h2 id="5-3-第三方配置工具使用">5-3 第三方配置工具使用</h2>
+<p>mysql第三方配置工具:<br>
+<a href="https://tools.percona.com/wizard">https://tools.percona.com/wizard</a></p>
+<h1 id="第6章-服务器硬件优化">第6章 服务器硬件优化</h1>
+<h2 id="6-1-服务器硬件优化">6-1 服务器硬件优化</h2>
+<p>服务器硬件优化:<br>
+1.cpu选择:mysql一个sql的执行只能用到单核的cpu,其次,在复制进程的时候也是只能用到单核的cpu,所以cpu并不是越多越好,mysql5.5是的服务器不要超过32核,偏向选择单核频率更快的cpu;<br>
+2.Disk IO 优化<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/841bf06f19ce81dd44d0756d2be1d107.png" alt="image.png" loading="lazy"><br>
+常用的RAID 级别简介<br>
+RAID0: 也称为条带,多个磁盘接成一个使用,io最好(但是磁盘坏了,数据没了,安全性差)<br>
+RAID1: 也称镜像,要求至少两个磁盘,每组磁盘存储的数据相同;<br>
+RAID1+0:  就是RAID1和RAID0的结合,同时具备两个级别的优缺点,推荐数据库使用这个级别;<br>
+目前可能还有更好的存储设备:比如ssd卡<br>
+<img src="https://img-blog.csdnimg.cn/img_convert/f13c237f532bcb844769ca0f2ddc6ba8.png" alt="image.png" loading="lazy"></p>
+
+        </div>
+        <!-- Share to Twitter, Weibo, Telegram -->
+        <div class="flex items-center">
+          <div class="mr-4 flex items-center">
+            <i class="ri-share-forward-line text-gray-500"></i>
+          </div>
+          <div class="px-4 cursor-pointer text-blue-500 hover:bg-blue-100 dark:hover:bg-gray-600 inline-flex" @click="shareToTwitter">
+            <i class="ri-twitter-line"></i>
+          </div>
+          <div class="px-4 cursor-pointer text-red-500 hover:bg-red-100 dark:hover:bg-gray-600 inline-flex" @click="shareToWeibo">
+            <i class="ri-weibo-line"></i>
+          </div>
+          <div class="px-4 cursor-pointer text-indigo-500 hover:bg-indigo-100 dark:hover:bg-gray-600 inline-flex" @click="shareToTelegram">
+            <i class="ri-telegram-line"></i>
+          </div>
+        </div>
+      </div>
+
+      
+
+      
+
+      <footer class="py-12 text-center px-4 md:px-0" v-pre>
+  
+</footer>
+    </div>
+
+    <!-- TOC Container -->
+    <div class="fixed right-0 bottom-0 mb-16 mr-4 shadow w-8 h-8 rounded-full flex justify-center items-center z-10 cursor-pointer bg-white dark:bg-gray-500 dark:text-gray-200 hover:shadow-lg transition-all animated fadeInRight" @click="showToc = true">
+      <i class="ri-file-list-line"></i>
+    </div>
+
+    <div class="fixed right-0 top-0 bottom-0 overflow-y-auto w-64 bg-white dark:bg-gray-800 p-4 border-l border-gray-100 dark:border-gray-600 z-10 transition-fast" :class="{ '-mr-64': !showToc }">
+      <div class="flex mb-4 justify-end">
+        <div class="w-8 h-8 inline-flex justify-center items-center rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-fast" @click="showToc = false">
+          <i class="ri-close-line text-lg"></i>
+        </div>
+      </div>
+      <div class="post-toc-container">
+        <ul class="markdownIt-TOC">
+<li><a href="#%E7%AC%AC1%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%AE%80%E4%BB%8B">第1章 数据库优化简介</a>
+<ul>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%9A%84%E7%9B%AE%E7%9A%84">数据库优化的目的</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BC%98%E5%8C%96%E7%9A%84%E6%96%B9%E5%BC%8F">数据库优化的方式</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC2%E7%AB%A0-sql%E8%AF%AD%E5%8F%A5%E4%BC%98%E5%8C%96">第2章 SQL语句优化</a>
+<ul>
+<li><a href="#select%E8%AF%AD%E5%8F%A5-%E8%AF%AD%E6%B3%95%E9%A1%BA%E5%BA%8F">SELECT语句 - 语法顺序：</a></li>
+<li><a href="#select%E8%AF%AD%E5%8F%A5-%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F">SELECT语句 - 执行顺序：</a></li>
+<li><a href="#2-1-%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87">2-1 数据准备</a></li>
+<li><a href="#2-2-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E7%9A%84%E5%BC%80%E5%90%AF%E6%96%B9%E5%BC%8F%E5%92%8C%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F">2-2 MySQL慢查日志的开启方式和存储格式</a></li>
+<li><a href="#2-3-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmysqldumpslow">2-3 MySQL慢查日志分析工具之mysqldumpslow</a>
+<ul>
+<li><a href="#windows%E4%B8%8B%E4%BD%BF%E7%94%A8">Windows下使用</a></li>
+<li><a href="#linux-%E4%B8%8B%E4%BD%BF%E7%94%A8">Linux 下使用</a></li>
+</ul>
+</li>
+<li><a href="#2-4-mysql%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bpt-query-digest">2-4 MySQL慢查日志分析工具之pt-query-digest</a>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85pt-query-digest">安装pt-query-digest</a></li>
+<li><a href="#%E6%88%96%E8%80%85%E5%AE%89%E8%A3%85-percona-toolkit-%E5%A5%97%E4%BB%B6">或者安装 percona-toolkit 套件</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8-pt-query-digest">使用 pt-query-digest</a>
+<ul>
+<li><a href="#pt-query-digest%E8%AF%AD%E6%B3%95%E5%8F%8A%E9%87%8D%E8%A6%81%E9%80%89%E9%A1%B9">pt-query-digest语法及重要选项</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%86%E6%9E%90pt-query-digest%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C">分析pt-query-digest输出结果</a></li>
+</ul>
+</li>
+<li><a href="#2-5-%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E6%85%A2%E6%9F%A5%E6%97%A5%E5%BF%97%E5%8F%91%E7%8E%B0%E6%9C%89%E9%97%AE%E9%A2%98%E7%9A%84sql">2-5 如何通过慢查日志发现有问题的SQL</a></li>
+<li><a href="#2-6-%E9%80%9A%E8%BF%87explain%E6%9F%A5%E8%AF%A2%E5%92%8C%E5%88%86%E6%9E%90sql%E7%9A%84%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92">2-6 通过explain查询和分析SQL的执行计划</a></li>
+<li><a href="#2-7-count%E5%92%8Cmax%E7%9A%84%E4%BC%98%E5%8C%96">2-7 Count()和Max()的优化</a>
+<ul>
+<li><a href="#1%E5%AF%B9max%E6%9F%A5%E8%AF%A2%E5%8F%AF%E4%BB%A5%E4%B8%BA%E8%A1%A8%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95">1.对max()查询，可以为表创建索引</a></li>
+<li><a href="#2count%E5%AF%B9%E5%A4%9A%E4%B8%AA%E5%85%B3%E9%94%AE%E5%AD%97%E8%BF%9B%E8%A1%8C%E6%9F%A5%E8%AF%A2">2.count()对多个关键字进行查询</a></li>
+</ul>
+</li>
+<li><a href="#2-8-%E5%AD%90%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E5%8C%96">2-8 子查询的优化</a></li>
+<li><a href="#2-9-group-by%E7%9A%84%E4%BC%98%E5%8C%96">2-9 group by的优化</a></li>
+<li><a href="#2-10-limit%E6%9F%A5%E8%AF%A2%E7%9A%84%E4%BC%98%E5%8C%96">2-10 Limit查询的优化</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC3%E7%AB%A0-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96">第3章 索引优化</a>
+<ul>
+<li><a href="#3-1-%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E5%88%97%E5%BB%BA%E7%AB%8B%E7%B4%A2%E5%BC%95">3-1 如何选择合适的列建立索引</a>
+<ul>
+<li><a href="#%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E7%B4%A2%E5%BC%95%E5%88%97">选择合适的索引列</a></li>
+<li><a href="#%E7%A6%BB%E6%95%A3%E5%BA%A6%E7%9A%84%E5%88%A4%E6%96%AD">离散度的判断</a></li>
+</ul>
+</li>
+<li><a href="#3-2-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96sql%E7%9A%84%E6%96%B9%E6%B3%95">3-2 索引优化SQL的方法</a>
+<ul>
+<li><a href="#%E9%87%8D%E5%A4%8D%E5%8F%8A%E5%86%97%E4%BD%99%E7%B4%A2%E5%BC%95">重复及冗余索引</a></li>
+<li><a href="#%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E5%8F%8A%E5%86%97%E4%BD%99%E7%B4%A2%E5%BC%95">查找重复及冗余索引</a></li>
+</ul>
+</li>
+<li><a href="#3-3-%E7%B4%A2%E5%BC%95%E7%BB%B4%E6%8A%A4%E7%9A%84%E6%96%B9%E6%B3%95">3-3 索引维护的方法</a></li>
+<li><a href="#3-4-%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88%E7%9A%84%E6%83%85%E5%86%B5">3-4 索引失效的情况</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC4%E7%AB%A0-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E4%BC%98%E5%8C%96">第4章 数据库结构优化</a>
+<ul>
+<li><a href="#4-1-%E9%80%89%E6%8B%A9%E5%90%88%E9%80%82%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">4-1 选择合适的数据类型</a>
+<ul>
+<li><a href="#%E4%BE%8B%E5%AD%901-%E7%94%A8int%E5%AD%98%E5%82%A8%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4">例子1、用Int存储日期时间</a></li>
+<li><a href="#%E4%BE%8B%E5%AD%902-%E5%AD%98%E5%82%A8ip%E5%9C%B0%E5%9D%80bigint">例子2、存储IP地址——bigInt</a></li>
+</ul>
+</li>
+<li><a href="#4-2-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E8%8C%83%E5%BC%8F%E5%8C%96%E4%BC%98%E5%8C%96">4-2 数据库表的范式化优化</a></li>
+<li><a href="#4-3-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%8F%8D%E8%8C%83%E5%BC%8F%E5%8C%96%E4%BC%98%E5%8C%96">4-3 数据库表的反范式化优化</a></li>
+<li><a href="#4-4-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86">4-4 数据库表的垂直拆分</a></li>
+<li><a href="#4-5-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86">4-5 数据库表的水平拆分</a>
+<ul>
+<li><a href="#%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86%E4%B8%8E%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86%E5%8C%BA%E5%88%AB">垂直拆分与水平拆分区别:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC5%E7%AB%A0-%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96">第5章 系统配置优化</a>
+<ul>
+<li><a href="#5-1-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E4%BC%98%E5%8C%96">5-1 数据库系统配置优化</a>
+<ul>
+<li><a href="#1-%E7%BD%91%E7%BB%9C%E6%96%B9%E9%9D%A2">1. 网络方面</a></li>
+<li><a href="#2-%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E6%95%B0%E7%9A%84%E9%99%90%E5%88%B6">2. 打开文件数的限制</a></li>
+</ul>
+</li>
+<li><a href="#5-2-mysql%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%BC%98%E5%8C%96">5-2 MySQL配置文件优化</a></li>
+<li><a href="#5-3-%E7%AC%AC%E4%B8%89%E6%96%B9%E9%85%8D%E7%BD%AE%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8">5-3 第三方配置工具使用</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AC%AC6%E7%AB%A0-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96">第6章 服务器硬件优化</a>
+<ul>
+<li><a href="#6-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96">6-1 服务器硬件优化</a></li>
+</ul>
+</li>
+</ul>
+
+      </div>
+    </div>
+
+    <!-- Back to top -->
+    <div class="fixed right-0 bottom-0 mb-4 mr-4 shadow w-8 h-8 rounded-full flex justify-center items-center z-10 cursor-pointer bg-white hover:shadow-lg transition-all dark:bg-gray-500 dark:text-gray-200" @click="backToUp" v-show="scrolled">
+      <i class="ri-arrow-up-line"></i>
+    </div>
+  </div>
+
+  <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <!-- Background of PhotoSwipe. 
+        It's a separate element as animating opacity is faster than rgba(). -->
+  <div class="pswp__bg">
+  </div>
+  <!-- Slides wrapper with overflow:hidden. -->
+  <div class="pswp__scroll-wrap">
+    <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+    <div class="pswp__container">
+      <div class="pswp__item">
+      </div>
+      <div class="pswp__item">
+      </div>
+      <div class="pswp__item">
+      </div>
+    </div>
+    <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+    <div class="pswp__ui pswp__ui--hidden">
+      <div class="pswp__top-bar">
+        <!--  Controls are self-explanatory. Order can be changed. -->
+        <div class="pswp__counter">
+        </div>
+        <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+        <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+        <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+        <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+        <!-- element will get class pswp__preloader--active when preloader is running -->
+        <div class="pswp__preloader">
+          <div class="pswp__preloader__icn">
+            <div class="pswp__preloader__cut">
+              <div class="pswp__preloader__donut">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+        <div class="pswp__share-tooltip">
+        </div>
+      </div>
+      <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+      </button>
+      <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+      </button>
+      <div class="pswp__caption">
+        <div class="pswp__caption__center">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://junwuyi.github.io/media/scripts/main.js"></script>
+  
+  <!-- Code Highlight -->
+  
+    <script src="https://junwuyi.github.io/media/prism.js"></script>
+    <script>
+      Prism.highlightAll()
+    </script>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+  <script>
+    //拿到预览框架，也就是上面的html代码
+    var pswpElement = document.querySelectorAll('.pswp')[0];
+    //定义图片数组变量
+    var imgitems;
+    /**
+    * 用于显示预览界面
+    * @param index 图片数组下标
+    */
+    function viewImg(index) {
+      //其它选项这里不做过多阐述，详情见官网
+      var pswpoptions = {
+        index: parseInt(index, 10), // 开始幻灯片索引。0是第一张幻灯片。必须是整数，而不是字符串。
+        bgOpacity: 0.7, // 背景透明度，0-1
+        maxSpreadZoom: 3, // 缩放级别，不要太大
+      };
+      //初始化并打开PhotoSwipe，pswpElement对应上面预览框架，PhotoSwipeUI_Default为皮肤，imgitems为图片数组，pswpoptions为选项
+      var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, imgitems, pswpoptions);
+      gallery.init()
+    }
+    /**
+    * 用于添加图片点击事件
+    * @param img 图片元素
+    * @param index 所属下标（在imgitems中的位置）
+    */
+    function addImgClick(img, index) {
+      img.onclick = function() {
+        viewImg(index)
+      }
+    }
+    /**
+    * 轮询所有图片，获取src、width、height等数据，加入imgitems，并给图片元素添加事件
+    * 最好在onload中执行该方法，本站因放在最底部，所以直接初始化
+    * 异步加载图片可在图片元素创建完成后调用此方法
+    */
+    function initImg() {
+      //重置图片数组
+      imgitems = [];
+      //查找class:markdown 下的所有img元素并遍历
+      var imgs = document.querySelectorAll('.markdown img');
+      for (var i = 0; i < imgs.length; i++) {
+        var img = imgs[i];
+        //本站相册初始为loading图片，真实图片放在data-src
+        var ds = img.getAttribute("data-src");
+        //创建image对象，用于获取图片宽高
+        var imgtemp = new Image();
+        //判断是否存在data-src
+        if (ds != null && ds.length > 0) {
+          imgtemp.src = ds
+        } else {
+          imgtemp.src = img.src
+        }
+        //判断是否存在缓存
+        if (imgtemp.complete) {
+          var imgobj = {
+            "src": imgtemp.src,
+            "w": imgtemp.width,
+            "h": imgtemp.height,
+          };
+          imgitems[i] = imgobj;
+          addImgClick(img, i);
+        } else {
+          console.log('进来了2')
+          imgtemp.index = i;
+          imgtemp.img = img;
+          imgtemp.onload = function() {
+            var imgobj = {
+              "src": this.src,
+              "w": this.width,
+              "h": this.height,
+            };
+            //不要使用push，因为onload前后顺序会不同
+            imgitems[this.index] = imgobj
+            //添加点击事件
+            addImgClick(this.img, this.index);
+          }
+        }
+      }
+    }
+    //初始化
+    initImg();
+  </script>
+  
+  
+</body>
+
+</html>
