@@ -56,11 +56,21 @@
   
 
   
+  <style>
+	@media screen and (max-width: 800px) {
+	 
+	}
+	
+  </style>
 </head>
 
 <body>
   <div class="antialiased flex flex-col min-h-screen" id="app">
-	<div class="nav py-3 md:py-8 fixed w-full z-10 bg-gray-50 dark:bg-gray-700 transition-all duration-300" :class="{ 'scroll': scrolled }">
+    <a href="https://junwuyi.github.io" class="bingo-nava fixed top-0 left-0 mt-4 bg-black text-white dark:text-gray-700 dark:bg-yellow-50 dark:hover:bg-black dark:hover:text-white inline-flex p-2 pl-8 hover:text-gray-700 hover:bg-yellow-50 font-bold z-10 transition-fast animated fadeInLeft">
+      君无意博客
+    </a>
+	<div class="nav-blog">
+		<div class="nav py-3 md:py-8 fixed w-full z-10 bg-gray-50 dark:bg-gray-700 transition-all duration-300" :class="{ 'scroll': scrolled }">
   <div class="flex justify-end px-4">
     <div class="w-8 h-8 flex justify-center items-center rounded-full md:hidden" @click="showMenu = !showMenu">
       <i class="ri-close-line" v-show="showMenu"></i>
@@ -90,6 +100,7 @@
     </a>
   </nav>
 </div>
+	</div>
     <div class="max-w-4xl w-full mx-auto">
       <div class="shadow-box bg-white dark:bg-gray-600 rounded-lg pt-32 md:pt-64 px-4 md:px-8 pb-8 animated fadeIn mb-8">
         <h1 class="text-5xl font-semibold leading-normal pb-8 mb-8 border-b-8 border-gray-700">

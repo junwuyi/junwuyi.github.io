@@ -109,6 +109,9 @@ a:not([class]):hover {
   transition: all 0.5s ease-out;
   animation: s3-rotate 5s infinite linear, s3-opacity 5s infinite;
 }
+.bingo-nava {
+  display: none;
+}
 .post-nav {
   border-top: 1px solid #ced4da;
   border-bottom: 1px solid #ced4da;
@@ -133,6 +136,15 @@ a:not([class]):hover {
   .post-nav {
     margin: 24px 0;
     padding: 16px 0;
+  }
+  body {
+    font-size: 14px;
+  }
+  .bingo-nava {
+    display: block;
+  }
+  .nav-blog {
+    display: none;
   }
 }
 
