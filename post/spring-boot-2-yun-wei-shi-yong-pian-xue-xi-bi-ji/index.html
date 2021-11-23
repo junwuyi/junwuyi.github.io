@@ -982,6 +982,8 @@ public class BookController {
       
 
       
+        <div id="vlaine-comment"></div>
+      
 
       <footer class="py-12 text-center px-4 md:px-0" v-pre>
   
@@ -1226,6 +1228,23 @@ public class BookController {
     //初始化
     initImg();
   </script>
+  
+    <script type="application/javascript" src="https://unpkg.com/valine"></script>
+<script type="application/javascript">
+  new Valine({
+    el: '#vlaine-comment',
+    appId: 'Wzd4OL2blDUPI2teVCU4MiGe-gzGzoHsz',
+    appKey: 'KzJmdWii70VTQxkcf8sSsalm',
+    pageSize: 10,
+    notify: true,
+    avatar: 'mp',
+    verify: true,
+    placeholder: '来都来了，不妨评论一下',
+    visitor: true,
+    highlight: false,
+    recordIP: false,
+  })
+</script>
   
   
 </body>
