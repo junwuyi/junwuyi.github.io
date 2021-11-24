@@ -88,7 +88,7 @@ SELECT语句 - 执行顺序：
       君无意博客
     </a>
 	<div class="nav-blog">
-		<div class="nav py-3 md:py-8 fixed w-full z-10 bg-gray-50 dark:bg-gray-700 transition-all duration-300" :class="{ 'scroll': scrolled }">
+	  <div class="nav py-3 md:py-8 fixed w-full z-10 bg-gray-50 dark:bg-gray-700 transition-all duration-300" :class="{ 'scroll': scrolled }">
   <div class="flex justify-end px-4">
     <div class="w-8 h-8 flex justify-center items-center rounded-full md:hidden" @click="showMenu = !showMenu">
       <i class="ri-close-line" v-show="showMenu"></i>
@@ -109,7 +109,7 @@ SELECT语句 - 执行顺序：
         标签
       </a>
     
-      <a href="/about" target="" class="py-2 md:py-1 px-4 mx-4 inline-flex transition font-semibold rounded dark:hover:bg-gray-600 hover:bg-gray-200">
+      <a href="/post/about" target="" class="py-2 md:py-1 px-4 mx-4 inline-flex transition font-semibold rounded dark:hover:bg-gray-600 hover:bg-gray-200">
         关于
       </a>
     
@@ -1247,8 +1247,6 @@ RAID1+0:  就是RAID1和RAID0的结合,同时具备两个级别的优缺点,推�
       
 
       
-        <div id="vlaine-comment"></div>
-      
 
       <footer class="py-12 text-center px-4 md:px-0" v-pre>
   
@@ -1524,24 +1522,40 @@ RAID1+0:  就是RAID1和RAID0的结合,同时具备两个级别的优缺点,推�
     }
     //初始化
     initImg();
+	
+	let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+		//console.log(fromTop);
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop + 67) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop + 67) {
+                link.classList.add("current");
+				link.parentNode.classList.add("active");
+              } else {
+                link.classList.remove("current");
+				link.parentNode.classList.remove("active");
+              }
+            } else {
+              link.classList.add("current");
+			  link.parentNode.classList.add("active");
+            }
+          } else {
+            link.classList.remove("current");
+			link.parentNode.classList.remove("active");
+          }
+        });
+      });
+	
+	
   </script>
-  
-    <script type="application/javascript" src="https://unpkg.com/valine"></script>
-<script type="application/javascript">
-  new Valine({
-    el: '#vlaine-comment',
-    appId: 'Wzd4OL2blDUPI2teVCU4MiGe-gzGzoHsz',
-    appKey: 'KzJmdWii70VTQxkcf8sSsalm',
-    pageSize: 10,
-    notify: true,
-    avatar: 'mp',
-    verify: true,
-    placeholder: '来都来了，不妨评论一下',
-    visitor: true,
-    highlight: false,
-    recordIP: false,
-  })
-</script>
   
   
 </body>

@@ -9,7 +9,7 @@ body {
     font-family: 'Inter var', Inter, Rubik, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 }
-a:not([class]) {
+a {
   border-bottom-style: solid;
   border-bottom-width: 0.2rem;
   color: #0f61ff;
@@ -17,11 +17,11 @@ a:not([class]) {
   transition: all 0.3s ease 0s;
   border-color: rgba(15, 97, 255, 0.1);
 }
-a:not([class]):hover {
+a:hover {
   border-color: rgba(15, 97, 255, 0.5);
 }
 @media (prefers-color-scheme: dark) {
-  a:not([class]) {
+  a {
     color: #81a5f8;
   }
 }
@@ -114,6 +114,23 @@ a:not([class]):hover {
 }
 .bingo-nava {
   display: none;
+}
+.py-2 {
+  color: #000;
+}
+.post-toc-container .markdownIt-TOC li[class=active] {
+  background-color: #f5f5fa;
+}
+.post-toc-container .markdownIt-TOC li[class=active] a {
+  display: inline-block;
+  transition: all 0.3s;
+}
+.post-toc-container .markdownIt-TOC li[class=active] a:hover {
+  background-color: #f5f5fa;
+}
+.post-toc-container .markdownIt-TOC li[class=active] a.current {
+  color: #fc5531 !important;
+  border-color: rgba(15, 97, 255, 0.5);
 }
 .post-nav {
   border-top: 1px solid #ced4da;
