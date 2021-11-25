@@ -162,6 +162,7 @@ a:hover {
   }
   .bingo-nava {
     display: block;
+    background-color: rgba(0,0,0,0.7);
   }
   .nav-blog {
     display: none;
